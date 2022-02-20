@@ -1,0 +1,10 @@
+server.port = 8233
+
+spring.neo4j.uri = <url>
+spring.neo4j.authentication.username = <username>
+spring.neo4j.authentication.password = <password>
+spring.data.neo4j.database = <database>
+
+logging.level.org.springframework.data.neo4j = INFO
+logging.level.com.yi.psms.controller = INFO
+logging.level.com.yi.psms.service = INFO
