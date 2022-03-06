@@ -19,21 +19,33 @@ public class QuestionItem {
     @JsonProperty("content")
     private String content;
 
-    public QuestionItem(Long id, Integer questionId, String content) {
+    @JsonProperty("phase")
+    private Integer phase;
+
+    public QuestionItem(Long id, Integer questionId, String content, Integer phase) {
         this.id = id;
         this.questionId = questionId;
         this.content = content;
+        this.phase = phase;
     }
 
     public static QuestionItem buildFromNode(QuestionNode questionNode) {
-        return new QuestionItem(questionNode.getId(), questionNode.getQuestionId(), questionNode.getContent());
+        if (questionNode == null) {
+            return null;
+        }
+
+        return new QuestionItem(questionNode.getId(), questionNode.getQuestionId(), questionNode.getContent(), questionNode.getPhase());
     }
 
     public static List<QuestionItem> buildListFromNode(List<QuestionNode> questionNodeList) {
         List<QuestionItem> questionItemList = new ArrayList<>();
 
         for (QuestionNode questionNode : questionNodeList) {
-            QuestionItem questionItem = new QuestionItem(questionNode.getId(), questionNode.getQuestionId(), questionNode.getContent());
+            if (questionNode == null) {
+                continue;
+            }
+
+            QuestionItem questionItem = new QuestionItem(questionNode.getId(), questionNode.getQuestionId(), questionNode.getContent(), questionNode.getPhase());
             questionItemList.add(questionItem);
         }
 

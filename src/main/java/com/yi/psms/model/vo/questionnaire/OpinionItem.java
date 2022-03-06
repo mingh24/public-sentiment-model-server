@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -21,10 +20,5 @@ public class OpinionItem {
 
     @JsonProperty("opinion")
     private String opinion;
-
-    @JsonProperty("phase")
-    @NotNull(message = "阶段不能为 null")
-    @Min(value = 0, message = "阶段不能小于0")
-    private Integer phase;
 
 }

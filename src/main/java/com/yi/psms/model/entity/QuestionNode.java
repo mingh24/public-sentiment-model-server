@@ -20,9 +20,13 @@ public class QuestionNode {
     @Property("content")
     private String content;
 
-    public QuestionNode(Integer questionId, String content) {
+    @Property("phase")
+    private Integer phase;
+
+    public QuestionNode(Integer questionId, String content, Integer phase) {
         this.questionId = questionId;
         this.content = content;
+        this.phase = phase;
     }
 
 }
