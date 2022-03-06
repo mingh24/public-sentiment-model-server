@@ -32,13 +32,13 @@ public interface StudentNodeRepository extends Neo4jRepository<StudentNode, Long
     Integer deleteFriend(@Param("studentId") Integer studentId);
 
     // TODO 可能有重名问题
-    @Query("MATCH (s1:Student), (s2:Student) WHERE s1.studentId = $studentId AND s2.name = $friendName AND s1.name <> s2.name CREATE (s1)-[r:FRIEND {intimacy: $intimacy, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(s2) RETURN count(r)")
+    @Query("MATCH (s1:Student), (s2:Student) WHERE s1.studentId = $studentId AND s2.name = $friendName AND s1.name <> s2.name WITH s1, s2 ORDER BY s2.studentId ASC LIMIT 1 CREATE (s1)-[r:FRIEND {intimacy: $intimacy, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(s2) RETURN count(r)")
     Integer setFriendIntimacy(@Param("studentId") Integer studentId, @Param("friendName") String friendName, @Param("intimacy") Integer intimacy, @Param("currentDateTime") LocalDateTime currentDateTime);
 
-    @Query("MATCH (s:Student)-[r:OPINION]->(q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId AND r.phase = $phase DELETE r RETURN count(r)")
-    Integer deleteOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("phase") Integer phase);
+    @Query("MATCH (s:Student)-[r:OPINION]->(q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId DELETE r RETURN count(r)")
+    Integer deleteOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId);
 
-    @Query("MATCH (s:Student), (q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId CREATE (s)-[r:OPINION {attitude: $attitude, opinion: $opinion, phase: $phase, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q) RETURN count(r)")
-    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("opinion") String opinion, @Param("phase") Integer phase, @Param("currentDateTime") LocalDateTime currentDateTime);
+    @Query("MATCH (s:Student), (q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId CREATE (s)-[r:OPINION {attitude: $attitude, opinion: $opinion, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q) RETURN count(r)")
+    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("opinion") String opinion, @Param("currentDateTime") LocalDateTime currentDateTime);
 
 }

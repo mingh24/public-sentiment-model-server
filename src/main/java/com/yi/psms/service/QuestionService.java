@@ -1,6 +1,8 @@
 package com.yi.psms.service;
 
+import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
+import com.yi.psms.model.entity.QuestionNode;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.question.QuestionItem;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +19,14 @@ public class QuestionService extends BaseService {
     }
 
     public ResponseVO getQuestionByQuestionId(Integer questionId) {
-        return response(QuestionItem.buildFromNode(questionNodeRepository.findByQuestionId(questionId)));
+        // 判断问题信息是否存在
+        QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
+        if (questionNode == null) {
+            log.warn("nonexistent question, questionId: {}", questionId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
+        }
+
+        return response(QuestionItem.buildFromNode(questionNode));
     }
 
     public ResponseVO getAllQuestions() {

@@ -88,12 +88,12 @@ public class QuestionnaireService extends BaseService {
         }
 
         // 删除已存在的意见
-        Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId, opinionItem.getPhase());
-        log.info("student {}-{} deleted opinion relationship count {}, question id: {}, phase: {}", studentId, name, deletedOpinionCount, questionId, opinionItem.getPhase());
+        Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId);
+        log.info("student {}-{} deleted opinion relationship count {}, question id: {}", studentId, name, deletedOpinionCount, questionId);
 
         // 设置意见
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), opinionItem.getOpinion(), opinionItem.getPhase(), currentDateTime);
-        log.info("student {}-{} created opinion relationship count {} with question {}, attitude: {}, opinion: {}, phase: {}", studentId, name, createdOpinionCount, questionId, opinionItem.getAttitude(), opinionItem.getOpinion(), opinionItem.getPhase());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), opinionItem.getOpinion(), currentDateTime);
+        log.info("student {}-{} created opinion relationship count {} with question {}, attitude: {}, opinion: {}", studentId, name, createdOpinionCount, questionId, opinionItem.getAttitude(), opinionItem.getOpinion());
 
         return response();
     }
