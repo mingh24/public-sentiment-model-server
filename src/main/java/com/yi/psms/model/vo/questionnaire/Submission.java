@@ -5,7 +5,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
@@ -17,10 +16,6 @@ public class Submission {
     @JsonProperty("studentId")
     @NotNull(message = "学号不能为 null", groups = {Essential.class, Advanced.class})
     private Integer studentId;
-
-    @JsonProperty("name")
-    @NotBlank(message = "姓名不能为 空值", groups = {Essential.class, Advanced.class})
-    private String name;
 
     @JsonProperty("classmateIntimacy")
     @NotNull(message = "班级同学亲密度不能为 null", groups = {Essential.class})

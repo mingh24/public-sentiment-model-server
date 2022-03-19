@@ -23,13 +23,13 @@ public class QuestionnaireController extends BaseController {
 
     @PostMapping("/essential")
     public ResponseVO essential(@Validated(value = {Submission.Essential.class}) @RequestBody Submission submission) {
-        log.info("student {}-{} requested url: /questionnaire/essential", submission.getStudentId(), submission.getName());
+        log.info("student {} requested url: /questionnaire/essential", submission.getStudentId());
         return questionnaireService.essential(submission);
     }
 
     @PostMapping("/advanced")
     public ResponseVO advanced(@Validated(value = {Submission.Advanced.class}) @RequestBody Submission submission) {
-        log.info("student {}-{} requested url: /questionnaire/advanced", submission.getStudentId(), submission.getName());
+        log.info("student {} requested url: /questionnaire/advanced", submission.getStudentId());
         return questionnaireService.advanced(submission);
     }
 

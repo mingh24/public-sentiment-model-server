@@ -31,25 +31,24 @@ public class QuestionnaireService extends BaseService {
     public ResponseVO essential(Submission submission) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         Integer studentId = submission.getStudentId();
-        String name = submission.getName();
 
         // 判断填写人信息是否存在
-        if (studentNodeRepository.findByStudentIdAndName(studentId, name) == null) {
-            log.warn("student {}-{} does not exists", studentId, name);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s-%s", studentId, name));
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exists", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
         }
 
         // 设置班级同学亲密度
         Integer affectedClassmateCount = studentNodeRepository.setClassmateIntimacy(studentId, submission.getClassmateIntimacy(), currentDateTime);
-        log.info("student {}-{} affected classmate relationship count: {}, intimacy: {}", studentId, name, affectedClassmateCount, submission.getClassmateIntimacy());
+        log.info("student {} affected classmate relationship count: {}, intimacy: {}", studentId, affectedClassmateCount, submission.getClassmateIntimacy());
 
         // 设置舍友亲密度
         Integer affectedRoommateCount = studentNodeRepository.setRoommateIntimacy(studentId, submission.getRoommateIntimacy(), currentDateTime);
-        log.info("student {}-{} affected roommate relationship count: {}, intimacy: {}", studentId, name, affectedRoommateCount, submission.getRoommateIntimacy());
+        log.info("student {} affected roommate relationship count: {}, intimacy: {}", studentId, affectedRoommateCount, submission.getRoommateIntimacy());
 
         // 删除已存在的好友关系
         Integer deletedFriendCount = studentNodeRepository.deleteFriend(studentId);
-        log.info("student {}-{} deleted friend relationship count: {}", studentId, name, deletedFriendCount);
+        log.info("student {} deleted friend relationship count: {}", studentId, deletedFriendCount);
 
         List<FriendItem> friendItemList = submission.getFriendItemList();
 
@@ -57,17 +56,11 @@ public class QuestionnaireService extends BaseService {
         for (FriendItem friendItem : friendItemList) {
             List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
             if (studentNodeList.size() <= 0) {
-                log.warn("student {}-{} entered nonexistent friend, name: {}", studentId, name, friendItem.getName());
+                log.warn("student {} entered nonexistent friend, name: {}", studentId, friendItem.getName());
                 return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", friendItem.getName()));
             }
 
-            // 好友不能填自己
-            for (StudentNode studentNode : studentNodeList) {
-                if (studentNode.getStudentId().equals(studentId) && studentNode.getName().equals(name)) {
-                    log.warn("student {}-{} entered itself as a friend", studentId, name);
-                    return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
-                }
-            }
+            // TODO 好友不能填自己
         }
 
         Integer createdFriendCount = 0;
@@ -75,7 +68,7 @@ public class QuestionnaireService extends BaseService {
         // 设置好友亲密度
         for (FriendItem friendItem : friendItemList) {
             createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getName(), friendItem.getIntimacy(), currentDateTime);
-            log.info("student {}-{} created friend relationship count {} with student {}, intimacy: {}", studentId, name, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
+            log.info("student {} created friend relationship count {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
         }
 
         OpinionItem opinionItem = submission.getOpinionItem();
@@ -83,17 +76,17 @@ public class QuestionnaireService extends BaseService {
 
         // 判断问题信息是否存在
         if (questionNodeRepository.findByQuestionId(questionId) == null) {
-            log.warn("student {}-{} answered nonexistent question, questionId: {}", studentId, name, questionId);
+            log.warn("student {} answered nonexistent question, questionId: {}", studentId, questionId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
         // 删除已存在的意见
         Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId);
-        log.info("student {}-{} deleted opinion relationship count {}, question id: {}", studentId, name, deletedOpinionCount, questionId);
+        log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), opinionItem.getOpinion(), currentDateTime);
-        log.info("student {}-{} created opinion relationship count {} with question {}, attitude: {}, opinion: {}", studentId, name, createdOpinionCount, questionId, opinionItem.getAttitude(), opinionItem.getOpinion());
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), opinionItem.getOpinion());
 
         return response();
     }
