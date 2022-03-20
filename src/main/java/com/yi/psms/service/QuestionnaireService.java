@@ -34,7 +34,7 @@ public class QuestionnaireService extends BaseService {
 
         // 判断填写人信息是否存在
         if (studentNodeRepository.findByStudentId(studentId) == null) {
-            log.warn("student {} does not exists", studentId);
+            log.warn("student {} does not exist", studentId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
         }
 
@@ -60,7 +60,13 @@ public class QuestionnaireService extends BaseService {
                 return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", friendItem.getName()));
             }
 
-            // TODO 好友不能填自己
+            // 好友不能填自己
+            for (StudentNode studentNode : studentNodeList) {
+                if (studentNode.getStudentId().equals(studentId)) {
+                    log.warn("student {} entered itself as a friend", studentId);
+                    return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
+                }
+            }
         }
 
         Integer createdFriendCount = 0;
