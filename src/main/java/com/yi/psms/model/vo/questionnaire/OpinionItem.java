@@ -14,8 +14,8 @@ public class OpinionItem {
     private Integer questionId;
 
     @JsonProperty("attitude")
-    @NotNull(message = "态度值不能为 null")
-    @Range(min = 0, max = 1, message = "态度值不合法")
+    @NotNull(message = "观点支持度不能为 null")
+    @Range(min = 0, max = 10, message = "观点支持度不合法")
     private Integer attitude;
 
     @JsonProperty("opinion")
