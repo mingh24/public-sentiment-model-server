@@ -18,6 +18,12 @@ public class OpinionItem {
     @Range(min = 0, max = 10, message = "观点支持度不合法")
     private Integer attitude;
 
+    @JsonProperty("priceOption")
+    private String priceOption;
+
+    @JsonProperty("lengthOption")
+    private String lengthOption;
+
     @JsonProperty("opinion")
     private String opinion;
 
