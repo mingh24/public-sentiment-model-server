@@ -38,18 +38,6 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
         }
 
-        // 设置班级同学亲密度
-        Integer affectedClassmateCount = studentNodeRepository.setClassmateIntimacy(studentId, submission.getClassmateIntimacy(), currentDateTime);
-        log.info("student {} affected classmate relationship count: {}, intimacy: {}", studentId, affectedClassmateCount, submission.getClassmateIntimacy());
-
-        // 设置舍友亲密度
-        Integer affectedRoommateCount = studentNodeRepository.setRoommateIntimacy(studentId, submission.getRoommateIntimacy(), currentDateTime);
-        log.info("student {} affected roommate relationship count: {}, intimacy: {}", studentId, affectedRoommateCount, submission.getRoommateIntimacy());
-
-        // 删除已存在的好友关系
-        Integer deletedFriendCount = studentNodeRepository.deleteFriend(studentId);
-        log.info("student {} deleted friend relationship count: {}", studentId, deletedFriendCount);
-
         List<FriendItem> friendItemList = submission.getFriendItemList();
 
         // 判断好友信息是否存在
@@ -69,14 +57,6 @@ public class QuestionnaireService extends BaseService {
             }
         }
 
-        Integer createdFriendCount = 0;
-
-        // 设置好友亲密度
-        for (FriendItem friendItem : friendItemList) {
-            createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getName(), friendItem.getIntimacy(), currentDateTime);
-            log.info("student {} created friend relationship count {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
-        }
-
         OpinionItem opinionItem = submission.getOpinionItem();
         Integer questionId = opinionItem.getQuestionId();
 
@@ -84,6 +64,26 @@ public class QuestionnaireService extends BaseService {
         if (questionNodeRepository.findByQuestionId(questionId) == null) {
             log.warn("student {} answered nonexistent question, questionId: {}", studentId, questionId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
+        }
+
+        // 设置班级同学亲密度
+        Integer affectedClassmateCount = studentNodeRepository.setClassmateIntimacy(studentId, submission.getClassmateIntimacy(), currentDateTime);
+        log.info("student {} affected classmate relationship count: {}, intimacy: {}", studentId, affectedClassmateCount, submission.getClassmateIntimacy());
+
+        // 设置舍友亲密度
+        Integer affectedRoommateCount = studentNodeRepository.setRoommateIntimacy(studentId, submission.getRoommateIntimacy(), currentDateTime);
+        log.info("student {} affected roommate relationship count: {}, intimacy: {}", studentId, affectedRoommateCount, submission.getRoommateIntimacy());
+
+        // 删除已存在的好友关系
+        Integer deletedFriendCount = studentNodeRepository.deleteFriend(studentId);
+        log.info("student {} deleted friend relationship count: {}", studentId, deletedFriendCount);
+
+        Integer createdFriendCount = 0;
+
+        // 设置好友亲密度
+        for (FriendItem friendItem : friendItemList) {
+            createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getName(), friendItem.getIntimacy(), currentDateTime);
+            log.info("student {} created friend relationship count {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
         }
 
         // 删除已存在的意见
