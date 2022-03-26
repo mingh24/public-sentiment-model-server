@@ -1,14 +1,16 @@
 package com.yi.psms.service;
 
+import com.google.gson.Gson;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
-import com.yi.psms.model.entity.StudentNode;
+import com.yi.psms.model.entity.*;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItem;
 import com.yi.psms.model.vo.questionnaire.OpinionItem;
 import com.yi.psms.model.vo.questionnaire.Submission;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,18 +32,17 @@ public class QuestionnaireService extends BaseService {
     @Transactional
     public ResponseVO essential(Submission submission) {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        Integer studentId = submission.getStudentId();
 
         // 判断填写人信息是否存在
+        Integer studentId = submission.getStudentId();
         if (studentNodeRepository.findByStudentId(studentId) == null) {
             log.warn("student {} does not exist", studentId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
         }
 
-        List<FriendItem> friendItemList = submission.getFriendItemList();
-
         // 判断好友信息是否存在
-        for (FriendItem friendItem : friendItemList) {
+        List<FriendItem> friendItemList = submission.getFriendItemList();
+        for (val friendItem : friendItemList) {
             List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
             if (studentNodeList.size() <= 0) {
                 log.warn("student {} entered nonexistent friend, name: {}", studentId, friendItem.getName());
@@ -49,7 +50,7 @@ public class QuestionnaireService extends BaseService {
             }
 
             // 好友不能填自己
-            for (StudentNode studentNode : studentNodeList) {
+            for (val studentNode : studentNodeList) {
                 if (studentNode.getStudentId().equals(studentId)) {
                     log.warn("student {} entered itself as a friend", studentId);
                     return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
@@ -57,13 +58,33 @@ public class QuestionnaireService extends BaseService {
             }
         }
 
+        // 判断问题信息是否存在
         OpinionItem opinionItem = submission.getOpinionItem();
         Integer questionId = opinionItem.getQuestionId();
-
-        // 判断问题信息是否存在
-        if (questionNodeRepository.findByQuestionId(questionId) == null) {
+        QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
+        if (questionNode == null) {
             log.warn("student {} answered nonexistent question, questionId: {}", studentId, questionId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
+        }
+
+        // 判断额外问题是否已填写
+        Gson gson = new Gson();
+        QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
+        ExtraQuestion priceQuestion = questionContent.getPriceQuestion();
+        ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
+
+        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
+            if (getExtraQuestionOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey()) == null) {
+                log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
+                return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
+            }
+        }
+
+        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
+            if (getExtraQuestionOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey()) == null) {
+                log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
+                return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
+            }
         }
 
         // 设置班级同学亲密度
@@ -78,10 +99,9 @@ public class QuestionnaireService extends BaseService {
         Integer deletedFriendCount = studentNodeRepository.deleteFriend(studentId);
         log.info("student {} deleted friend relationship count: {}", studentId, deletedFriendCount);
 
-        Integer createdFriendCount = 0;
-
         // 设置好友亲密度
-        for (FriendItem friendItem : friendItemList) {
+        Integer createdFriendCount = 0;
+        for (val friendItem : friendItemList) {
             createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getName(), friendItem.getIntimacy(), currentDateTime);
             log.info("student {} created friend relationship count {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
         }
@@ -91,8 +111,10 @@ public class QuestionnaireService extends BaseService {
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), opinionItem.getOpinion(), currentDateTime);
-        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), opinionItem.getOpinion());
+        String priceOption = buildOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion());
 
         return response();
     }
@@ -102,6 +124,25 @@ public class QuestionnaireService extends BaseService {
         // TODO
 
         return response();
+    }
+
+    private ExtraQuestion.Option getExtraQuestionOption(List<ExtraQuestion.Option> optionList, String optionKey) {
+        for (val o : optionList) {
+            if (o.getOptionKey().equals(optionKey)) {
+                return o;
+            }
+        }
+
+        return null;
+    }
+
+    private String buildOption(List<ExtraQuestion.Option> optionList, String optionKey) {
+        var o = getExtraQuestionOption(optionList, optionKey);
+        if (o == null) {
+            return null;
+        }
+
+        return String.format("%s@%s", o.getOptionKey(), o.getOptionValue());
     }
 
 }
