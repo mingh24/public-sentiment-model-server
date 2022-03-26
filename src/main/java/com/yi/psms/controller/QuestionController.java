@@ -21,7 +21,7 @@ public class QuestionController extends BaseController {
 
     @GetMapping("/question-id/{questionId}")
     public ResponseVO getQuestionByQuestionId(@PathVariable Integer questionId) {
-        log.info("----- requested url: /questions/{} -----", questionId);
+        log.info("----- requested url: /questions/question-id/{} -----", questionId);
         return questionService.getQuestionByQuestionId(questionId);
     }
 

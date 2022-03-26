@@ -3,6 +3,7 @@ package com.yi.psms.model.vo.question;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yi.psms.model.entity.QuestionNode;
 import lombok.Data;
+import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class QuestionItem {
     public static List<QuestionItem> buildListFromNode(List<QuestionNode> questionNodeList) {
         List<QuestionItem> questionItemList = new ArrayList<>();
 
-        for (QuestionNode questionNode : questionNodeList) {
+        for (val questionNode : questionNodeList) {
             if (questionNode == null) {
                 continue;
             }

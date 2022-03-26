@@ -3,6 +3,7 @@ package com.yi.psms.model.vo.student;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yi.psms.model.entity.StudentNode;
 import lombok.Data;
+import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class StudentItem {
     public static List<StudentItem> buildListFromNodeList(List<StudentNode> studentNodeList) {
         List<StudentItem> studentItemList = new ArrayList<>();
 
-        for (StudentNode studentNode : studentNodeList) {
+        for (val studentNode : studentNodeList) {
             StudentItem studentItem = new StudentItem(studentNode.getId(), studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass(), studentNode.getDormitory());
             studentItemList.add(studentItem);
         }
