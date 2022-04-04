@@ -9,6 +9,7 @@ import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItem;
 import com.yi.psms.model.vo.questionnaire.OpinionItem;
 import com.yi.psms.model.vo.questionnaire.Submission;
+import com.yi.psms.util.Neo4jHelper;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -111,8 +112,8 @@ public class QuestionnaireService extends BaseService {
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        String priceOption = buildOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
-        String lengthOption = buildOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
+        String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion(), currentDateTime);
         log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion());
 
@@ -136,13 +137,22 @@ public class QuestionnaireService extends BaseService {
         return null;
     }
 
-    private String buildOption(List<ExtraQuestion.Option> optionList, String optionKey) {
+    private String buildPriceOption(List<ExtraQuestion.Option> optionList, String optionKey) {
         var o = getExtraQuestionOption(optionList, optionKey);
         if (o == null) {
             return null;
         }
 
-        return String.format("%s@%s", o.getOptionKey(), o.getOptionValue());
+        return Neo4jHelper.buildPriceOptionString(o.getOptionKey(), o.getOptionValue());
+    }
+
+    private String buildLengthOption(List<ExtraQuestion.Option> optionList, String optionKey) {
+        var o = getExtraQuestionOption(optionList, optionKey);
+        if (o == null) {
+            return null;
+        }
+
+        return Neo4jHelper.buildLengthOptionString(o.getOptionKey(), o.getOptionValue());
     }
 
 }
