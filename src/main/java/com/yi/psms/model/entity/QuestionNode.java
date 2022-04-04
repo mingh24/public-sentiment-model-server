@@ -17,14 +17,18 @@ public class QuestionNode {
     @Property("questionId")
     private Integer questionId;
 
+    @Property("previousQuestionId")
+    private Integer previousQuestionId;
+
     @Property("content")
     private String content;
 
     @Property("phase")
     private Integer phase;
 
-    public QuestionNode(Integer questionId, String content, Integer phase) {
+    public QuestionNode(Integer questionId, Integer previousQuestionId, String content, Integer phase) {
         this.questionId = questionId;
+        this.previousQuestionId = previousQuestionId;
         this.content = content;
         this.phase = phase;
     }

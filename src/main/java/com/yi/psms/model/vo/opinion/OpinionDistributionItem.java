@@ -8,13 +8,13 @@ import java.util.List;
 @Data
 public class OpinionDistributionItem {
 
-    @JsonProperty("overallAttitudeDist")
-    private List<OpinionCountItem> overallAttitudeDist;
+    @JsonProperty("attitudeOverallDist")
+    private List<OpinionCountItem> attitudeOverallDist;
 
-    @JsonProperty("overallPriceOptionDist")
-    private List<OpinionCountItem> overallPriceOptionDist;
+    @JsonProperty("priceOptionOverallDist")
+    private List<OpinionCountItem> priceOptionOverallDist;
 
-    @JsonProperty("overallLengthOptionDist")
-    private List<OpinionCountItem> overallLengthOptionDist;
+    @JsonProperty("lengthOptionOverallDist")
+    private List<OpinionCountItem> lengthOptionOverallDist;
 
 }

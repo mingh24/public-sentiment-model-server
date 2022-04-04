@@ -122,7 +122,55 @@ public class QuestionnaireService extends BaseService {
 
     @Transactional
     public ResponseVO advanced(Submission submission) {
-        // TODO
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // 判断填写人信息是否存在
+        Integer studentId = submission.getStudentId();
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
+        // 判断问题信息是否存在
+        OpinionItem opinionItem = submission.getOpinionItem();
+        Integer questionId = opinionItem.getQuestionId();
+        QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
+        if (questionNode == null) {
+            log.warn("student {} answered nonexistent question, questionId: {}", studentId, questionId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
+        }
+
+        // 判断额外问题是否已填写
+        Gson gson = new Gson();
+        QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
+        ExtraQuestion priceQuestion = questionContent.getPriceQuestion();
+        ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
+
+        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
+            if (getExtraQuestionOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey()) == null) {
+                log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
+                return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
+            }
+        }
+
+        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
+            if (getExtraQuestionOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey()) == null) {
+                log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
+                return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
+            }
+        }
+
+        // TODO 针对后续阶段，判断观点表达问题是否已填写
+
+        // 删除已存在的意见
+        Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId);
+        log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
+
+        // 设置意见
+        String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion());
 
         return response();
     }
