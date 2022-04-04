@@ -21,31 +21,31 @@ public class OpinionController extends BaseController {
 
     @GetMapping("/attitude/overall-distribution/{questionId}")
     public ResponseVO getAttitudeOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /attitude/overall-distribution/{} -----", questionId);
+        log.info("----- requested url: /opinions/attitude/overall-distribution/{} -----", questionId);
         return opinionService.getAttitudeOverallDistribution(questionId);
     }
 
     @GetMapping("/price-option/overall-distribution/{questionId}")
     public ResponseVO getPriceOptionOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /price-option/overall-distribution/{} -----", questionId);
+        log.info("----- requested url: /opinions/price-option/overall-distribution/{} -----", questionId);
         return opinionService.getPriceOptionOverallDistribution(questionId);
     }
 
     @GetMapping("/length-option/overall-distribution/{questionId}")
     public ResponseVO getLengthOptionOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /length-option/overall-distribution/{} -----", questionId);
+        log.info("----- requested url: /opinions/length-option/overall-distribution/{} -----", questionId);
         return opinionService.getLengthOptionOverallDistribution(questionId);
     }
 
     @GetMapping("/opinion/overall-distribution/{questionId}")
     public ResponseVO getOpinionOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /opinion/overall-distribution/{} -----", questionId);
+        log.info("----- requested url: /opinions/opinion/overall-distribution/{} -----", questionId);
         return opinionService.getOpinionOverallDistribution(questionId);
     }
 
     @GetMapping("/all/overall-distribution/{questionId}")
     public ResponseVO getAllOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /all/overall-distribution/{} -----", questionId);
+        log.info("----- requested url: /opinions/all/overall-distribution/{} -----", questionId);
         return opinionService.getAllOverallDistribution(questionId);
     }
 
