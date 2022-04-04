@@ -29,7 +29,7 @@ public class OpinionService extends BaseService {
         this.questionNodeRepository = questionNodeRepository;
     }
 
-    public ResponseVO getOverallAttitudeDistribution(Integer questionId) {
+    public ResponseVO getAttitudeOverallDistribution(Integer questionId) {
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -44,7 +44,7 @@ public class OpinionService extends BaseService {
         BasicQuestion basicQuestion = questionContent.getBasicQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachOverallAttitudeDistribution(opinionDistributionItem, questionId, basicQuestion);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, questionId, basicQuestion);
         completableFutureList.add(attitudeDistFuture);
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
@@ -53,7 +53,7 @@ public class OpinionService extends BaseService {
         return response(opinionDistributionItem);
     }
 
-    public ResponseVO getOverallPriceOptionDistribution(Integer questionId) {
+    public ResponseVO getPriceOptionOverallDistribution(Integer questionId) {
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -68,7 +68,7 @@ public class OpinionService extends BaseService {
         ExtraQuestion priceQuestion = questionContent.getPriceQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var priceOptionDistFuture = attachOverallPriceOptionDistribution(opinionDistributionItem, questionId, priceQuestion);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, questionId, priceQuestion);
         completableFutureList.add(priceOptionDistFuture);
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
@@ -77,7 +77,7 @@ public class OpinionService extends BaseService {
         return response(opinionDistributionItem);
     }
 
-    public ResponseVO getOverallLengthOptionDistribution(Integer questionId) {
+    public ResponseVO getLengthOptionOverallDistribution(Integer questionId) {
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -92,7 +92,7 @@ public class OpinionService extends BaseService {
         ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var lengthOptionDistFuture = attachOverallLengthOptionDistribution(opinionDistributionItem, questionId, lengthQuestion);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, lengthQuestion);
         completableFutureList.add(lengthOptionDistFuture);
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
@@ -101,7 +101,20 @@ public class OpinionService extends BaseService {
         return response(opinionDistributionItem);
     }
 
-    public ResponseVO getOverallOpinionDistribution(Integer questionId) {
+    public ResponseVO getOpinionOverallDistribution(Integer questionId) {
+        // 判断问题信息是否存在
+        QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
+        if (questionNode == null) {
+            log.warn("nonexistent question, questionId: {}", questionId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
+        }
+
+        // TODO 获取整体观点表达分布
+
+        return response();
+    }
+
+    public ResponseVO getAllOverallDistribution(Integer questionId) {
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -118,14 +131,16 @@ public class OpinionService extends BaseService {
         ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachOverallAttitudeDistribution(opinionDistributionItem, questionId, basicQuestion);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, questionId, basicQuestion);
         completableFutureList.add(attitudeDistFuture);
 
-        var priceOptionDistFuture = attachOverallPriceOptionDistribution(opinionDistributionItem, questionId, priceQuestion);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, questionId, priceQuestion);
         completableFutureList.add(priceOptionDistFuture);
 
-        var lengthOptionDistFuture = attachOverallLengthOptionDistribution(opinionDistributionItem, questionId, lengthQuestion);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, lengthQuestion);
         completableFutureList.add(lengthOptionDistFuture);
+
+        // TODO 获取整体观点表达分布
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
@@ -133,7 +148,7 @@ public class OpinionService extends BaseService {
         return response(opinionDistributionItem);
     }
 
-    public CompletableFuture<Void> attachOverallAttitudeDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, BasicQuestion basicQuestion) {
+    public CompletableFuture<Void> attachAttitudeOverallDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, BasicQuestion basicQuestion) {
         List<OpinionCountItem> attitudeCountItemList = new ArrayList<>();
         List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
 
@@ -151,7 +166,7 @@ public class OpinionService extends BaseService {
         });
     }
 
-    public CompletableFuture<Void> attachOverallPriceOptionDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, ExtraQuestion priceQuestion) {
+    public CompletableFuture<Void> attachPriceOptionOverallDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, ExtraQuestion priceQuestion) {
         List<OpinionCountItem> priceOptionCountItemList = new ArrayList<>();
         List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
 
@@ -168,7 +183,7 @@ public class OpinionService extends BaseService {
         });
     }
 
-    public CompletableFuture<Void> attachOverallLengthOptionDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, ExtraQuestion lengthOption) {
+    public CompletableFuture<Void> attachLengthOptionOverallDistribution(OpinionDistributionItem opinionDistributionItem, Integer questionId, ExtraQuestion lengthOption) {
         List<OpinionCountItem> lengthOptionCountItemList = new ArrayList<>();
         List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
 
@@ -183,6 +198,11 @@ public class OpinionService extends BaseService {
             lengthOptionCountItemList.sort(Comparator.comparing(OpinionCountItem::getName));
             opinionDistributionItem.setOverallLengthOptionDist(lengthOptionCountItemList);
         });
+    }
+
+    public CompletableFuture<Void> attachOpinionOverallDistribution() {
+        // TODO 获取整体观点表达分布
+        return null;
     }
 
 }

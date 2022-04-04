@@ -19,28 +19,34 @@ public class OpinionController extends BaseController {
         this.opinionService = opinionService;
     }
 
-    @GetMapping("/overall/attitude-distribution/{questionId}")
-    public ResponseVO getOverallAttitudeDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /overall/attitude-distribution/{} -----", questionId);
-        return opinionService.getOverallAttitudeDistribution(questionId);
+    @GetMapping("/attitude/overall-distribution/{questionId}")
+    public ResponseVO getAttitudeOverallDistribution(@PathVariable Integer questionId) {
+        log.info("----- requested url: /attitude/overall-distribution/{} -----", questionId);
+        return opinionService.getAttitudeOverallDistribution(questionId);
     }
 
-    @GetMapping("/overall/price-option-distribution/{questionId}")
-    public ResponseVO getOverallPriceOptionDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /overall/price-option-distribution/{} -----", questionId);
-        return opinionService.getOverallPriceOptionDistribution(questionId);
+    @GetMapping("/price-option/overall-distribution/{questionId}")
+    public ResponseVO getPriceOptionOverallDistribution(@PathVariable Integer questionId) {
+        log.info("----- requested url: /price-option/overall-distribution/{} -----", questionId);
+        return opinionService.getPriceOptionOverallDistribution(questionId);
     }
 
-    @GetMapping("/overall/length-option-distribution/{questionId}")
-    public ResponseVO getOverallLengthOptionDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /overall/length-option-distribution/{} -----", questionId);
-        return opinionService.getOverallLengthOptionDistribution(questionId);
+    @GetMapping("/length-option/overall-distribution/{questionId}")
+    public ResponseVO getLengthOptionOverallDistribution(@PathVariable Integer questionId) {
+        log.info("----- requested url: /length-option/overall-distribution/{} -----", questionId);
+        return opinionService.getLengthOptionOverallDistribution(questionId);
     }
 
-    @GetMapping("/overall/opinion-distribution/{questionId}")
-    public ResponseVO getOverallOpinionDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /overall/opinion-distribution/{} -----", questionId);
-        return opinionService.getOverallOpinionDistribution(questionId);
+    @GetMapping("/opinion/overall-distribution/{questionId}")
+    public ResponseVO getOpinionOverallDistribution(@PathVariable Integer questionId) {
+        log.info("----- requested url: /opinion/overall-distribution/{} -----", questionId);
+        return opinionService.getOpinionOverallDistribution(questionId);
+    }
+
+    @GetMapping("/all/overall-distribution/{questionId}")
+    public ResponseVO getAllOverallDistribution(@PathVariable Integer questionId) {
+        log.info("----- requested url: /all/overall-distribution/{} -----", questionId);
+        return opinionService.getAllOverallDistribution(questionId);
     }
 
 }
