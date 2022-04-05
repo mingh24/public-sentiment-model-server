@@ -197,7 +197,7 @@ public class OpinionService extends BaseService {
         }
 
         return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
+            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
             opinionDistributionItem.setAttitudeOverallDist(sortedResult);
         });
     }
@@ -216,7 +216,7 @@ public class OpinionService extends BaseService {
         }
 
         return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
+            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
             opinionDistributionItem.setPriceOptionOverallDist(sortedResult);
         });
     }
@@ -235,7 +235,7 @@ public class OpinionService extends BaseService {
         }
 
         return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
+            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountItem::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountItem::getName)).collect(Collectors.toList());
             opinionDistributionItem.setLengthOptionOverallDist(sortedResult);
         });
     }
