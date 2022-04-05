@@ -1,6 +1,5 @@
 package com.yi.psms.service;
 
-import com.google.gson.Gson;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
@@ -10,7 +9,7 @@ import com.yi.psms.model.vo.opinion.OpinionDistributionItem;
 import com.yi.psms.model.vo.question.AttitudeQuestionVO;
 import com.yi.psms.model.vo.question.LengthQuestionVO;
 import com.yi.psms.model.vo.question.PriceQuestionVO;
-import com.yi.psms.model.vo.question.QuestionContent;
+import com.yi.psms.model.vo.question.QuestionContentVO;
 import com.yi.psms.util.Neo4jHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -41,22 +40,13 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断上一阶段的问题信息是否存在
-        Integer previousQuestionId = questionNode.getPreviousQuestionId();
-        QuestionNode previousQuestionNode = questionNodeRepository.findByQuestionId(previousQuestionId);
-        if (previousQuestionId == null) {
-            log.warn("nonexistent previous question, questionId: {}", previousQuestionId);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
-        }
-
-        // 获取上一阶段观点支持度问题结果整体分布
+        // 获取观点支持度问题结果整体分布
         OpinionDistributionItem opinionDistributionItem = new OpinionDistributionItem();
-        Gson gson = new Gson();
-        QuestionContent previousQuestionContent = gson.fromJson(previousQuestionNode.getContent(), QuestionContent.class);
-        AttitudeQuestionVO previousAttitudeQuestionVO = previousQuestionContent.getAttitudeQuestionVO();
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, previousQuestionId, previousAttitudeQuestionVO);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, questionId, attitudeQuestion);
         if (attitudeDistFuture != null) {
             completableFutureList.add(attitudeDistFuture);
         }
@@ -75,22 +65,13 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断上一阶段的问题信息是否存在
-        Integer previousQuestionId = questionNode.getPreviousQuestionId();
-        QuestionNode previousQuestionNode = questionNodeRepository.findByQuestionId(previousQuestionId);
-        if (previousQuestionId == null) {
-            log.warn("nonexistent previous question, questionId: {}", previousQuestionId);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
-        }
-
-        // 获取上一阶段时长问题结果整体分布
+        // 获取时长问题结果整体分布
         OpinionDistributionItem opinionDistributionItem = new OpinionDistributionItem();
-        Gson gson = new Gson();
-        QuestionContent previousQuestionContent = gson.fromJson(previousQuestionNode.getContent(), QuestionContent.class);
-        PriceQuestionVO previousPriceQuestionVO = previousQuestionContent.getPriceQuestionVO();
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, previousQuestionId, previousPriceQuestionVO);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, questionId, priceQuestion);
         if (priceOptionDistFuture != null) {
             completableFutureList.add(priceOptionDistFuture);
         }
@@ -109,22 +90,13 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断上一阶段的问题信息是否存在
-        Integer previousQuestionId = questionNode.getPreviousQuestionId();
-        QuestionNode previousQuestionNode = questionNodeRepository.findByQuestionId(previousQuestionId);
-        if (previousQuestionId == null) {
-            log.warn("nonexistent previous question, questionId: {}", previousQuestionId);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
-        }
-
-        // 获取上一阶段时长问题结果整体分布
+        // 获取时长问题结果整体分布
         OpinionDistributionItem opinionDistributionItem = new OpinionDistributionItem();
-        Gson gson = new Gson();
-        QuestionContent previousQuestionContent = gson.fromJson(previousQuestionNode.getContent(), QuestionContent.class);
-        LengthQuestionVO previousLengthQuestionVO = previousQuestionContent.getLengthQuestionVO();
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, previousQuestionId, previousLengthQuestionVO);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, lengthQuestion);
         if (lengthOptionDistFuture != null) {
             completableFutureList.add(lengthOptionDistFuture);
         }
@@ -143,14 +115,6 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断上一阶段的问题信息是否存在
-        Integer previousQuestionId = questionNode.getPreviousQuestionId();
-        QuestionNode previousQuestionNode = questionNodeRepository.findByQuestionId(previousQuestionId);
-        if (previousQuestionId == null) {
-            log.warn("nonexistent previous question, questionId: {}", previousQuestionId);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
-        }
-
         // TODO 获取看法结果整体分布
 
         return response();
@@ -164,34 +128,25 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断上一阶段的问题信息是否存在
-        Integer previousQuestionId = questionNode.getPreviousQuestionId();
-        QuestionNode previousQuestionNode = questionNodeRepository.findByQuestionId(previousQuestionId);
-        if (previousQuestionId == null) {
-            log.warn("nonexistent previous question, questionId: {}", previousQuestionId);
-            return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
-        }
-
         // 获取整体结果分布
         OpinionDistributionItem opinionDistributionItem = new OpinionDistributionItem();
-        Gson gson = new Gson();
-        QuestionContent previousQuestionContent = gson.fromJson(previousQuestionNode.getContent(), QuestionContent.class);
-        AttitudeQuestionVO previousAttitudeQuestionVO = previousQuestionContent.getAttitudeQuestionVO();
-        PriceQuestionVO previousPriceQuestionVO = previousQuestionContent.getPriceQuestionVO();
-        LengthQuestionVO previousLengthQuestionVO = previousQuestionContent.getLengthQuestionVO();
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
+        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestion();
+        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestion();
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, questionId, previousAttitudeQuestionVO);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistributionItem, questionId, attitudeQuestion);
         if (attitudeDistFuture != null) {
             completableFutureList.add(attitudeDistFuture);
         }
 
-        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, questionId, previousPriceQuestionVO);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistributionItem, questionId, priceQuestionVO);
         if (priceOptionDistFuture != null) {
             completableFutureList.add(priceOptionDistFuture);
         }
 
-        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, previousLengthQuestionVO);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, lengthQuestionVO);
         if (lengthOptionDistFuture != null) {
             completableFutureList.add(lengthOptionDistFuture);
         }

@@ -9,7 +9,7 @@ import com.yi.psms.model.entity.node.StudentNode;
 import com.yi.psms.model.vo.question.LengthQuestionVO;
 import com.yi.psms.model.entity.question.OptionQuestion;
 import com.yi.psms.model.vo.question.PriceQuestionVO;
-import com.yi.psms.model.vo.question.QuestionContent;
+import com.yi.psms.model.vo.question.QuestionContentVO;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItem;
 import com.yi.psms.model.vo.questionnaire.OpinionItem;
@@ -75,19 +75,19 @@ public class QuestionnaireService extends BaseService {
 
         // 判断额外问题是否已填写
         Gson gson = new Gson();
-        QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
-        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestionVO();
-        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestionVO();
+        QuestionContentVO questionContent = gson.fromJson(questionNode.getContent(), QuestionContentVO.class);
+        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
+        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
 
-        if (opinionItem.getAttitude() > priceQuestionVO.getAttitudeThreshold()) {
-            if (getOptionByOptionKey(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
+        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
             }
         }
 
-        if (opinionItem.getAttitude() > lengthQuestionVO.getAttitudeThreshold()) {
-            if (getOptionByOptionKey(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
+        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
             }
@@ -117,8 +117,8 @@ public class QuestionnaireService extends BaseService {
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        String priceOption = buildPriceOption(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
-        String lengthOption = buildLengthOption(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
+        String priceOption = buildPriceOption(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
         log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 
@@ -147,19 +147,19 @@ public class QuestionnaireService extends BaseService {
 
         // 判断额外问题是否已填写
         Gson gson = new Gson();
-        QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
-        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestionVO();
-        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestionVO();
+        QuestionContentVO questionContent = gson.fromJson(questionNode.getContent(), QuestionContentVO.class);
+        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
+        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
 
-        if (opinionItem.getAttitude() > priceQuestionVO.getAttitudeThreshold()) {
-            if (getOptionByOptionKey(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
+        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
             }
         }
 
-        if (opinionItem.getAttitude() > lengthQuestionVO.getAttitudeThreshold()) {
-            if (getOptionByOptionKey(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
+        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
             }
@@ -172,8 +172,8 @@ public class QuestionnaireService extends BaseService {
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        String priceOption = buildPriceOption(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
-        String lengthOption = buildLengthOption(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
+        String priceOption = buildPriceOption(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
         log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 

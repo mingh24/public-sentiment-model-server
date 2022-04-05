@@ -4,7 +4,7 @@ import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
 import com.yi.psms.model.vo.ResponseVO;
-import com.yi.psms.model.vo.question.QuestionItem;
+import com.yi.psms.model.vo.question.QuestionVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class QuestionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        return response(QuestionItem.buildFromNode(questionNode));
+        return response(QuestionVO.buildFromNode(questionNode));
     }
 
     public ResponseVO getAllQuestions() {
-        return response(QuestionItem.buildListFromNode(questionNodeRepository.findAll()));
+        return response(QuestionVO.buildListFromNode(questionNodeRepository.findAll()));
     }
 
 }
