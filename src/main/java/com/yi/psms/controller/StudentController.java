@@ -31,10 +31,4 @@ public class StudentController extends BaseController {
         return studentService.getStudentByName(name);
     }
 
-//    @GetMapping
-//    public ResponseVO getAllStudents() {
-//        log.info("requested url: /students");
-//        return studentService.getAllStudents();
-//    }
-
 }

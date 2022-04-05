@@ -11,9 +11,9 @@ import com.yi.psms.model.entity.question.OptionQuestion;
 import com.yi.psms.model.vo.question.PriceQuestionVO;
 import com.yi.psms.model.vo.question.QuestionContentVO;
 import com.yi.psms.model.vo.ResponseVO;
-import com.yi.psms.model.vo.questionnaire.FriendItem;
-import com.yi.psms.model.vo.questionnaire.OpinionItem;
-import com.yi.psms.model.vo.questionnaire.Submission;
+import com.yi.psms.model.vo.questionnaire.FriendItemVO;
+import com.yi.psms.model.vo.questionnaire.OpinionItemVO;
+import com.yi.psms.model.vo.questionnaire.SubmissionVO;
 import com.yi.psms.util.Neo4jHelper;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -36,7 +36,7 @@ public class QuestionnaireService extends BaseService {
     }
 
     @Transactional
-    public ResponseVO essential(Submission submission) {
+    public ResponseVO essential(SubmissionVO submission) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         // 判断填写人信息是否存在
@@ -47,7 +47,7 @@ public class QuestionnaireService extends BaseService {
         }
 
         // 判断好友信息是否存在
-        List<FriendItem> friendItemList = submission.getFriendItemList();
+        List<FriendItemVO> friendItemList = submission.getFriendItemList();
         for (val friendItem : friendItemList) {
             List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
             if (studentNodeList.size() <= 0) {
@@ -65,7 +65,7 @@ public class QuestionnaireService extends BaseService {
         }
 
         // 判断问题信息是否存在
-        OpinionItem opinionItem = submission.getOpinionItem();
+        OpinionItemVO opinionItem = submission.getOpinionItem();
         Integer questionId = opinionItem.getQuestionId();
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -126,7 +126,7 @@ public class QuestionnaireService extends BaseService {
     }
 
     @Transactional
-    public ResponseVO advanced(Submission submission) {
+    public ResponseVO advanced(SubmissionVO submission) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         // 判断填写人信息是否存在
@@ -137,7 +137,7 @@ public class QuestionnaireService extends BaseService {
         }
 
         // 判断问题信息是否存在
-        OpinionItem opinionItem = submission.getOpinionItem();
+        OpinionItemVO opinionItem = submission.getOpinionItem();
         Integer questionId = opinionItem.getQuestionId();
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {

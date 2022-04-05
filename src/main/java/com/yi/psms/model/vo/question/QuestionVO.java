@@ -55,8 +55,7 @@ public class QuestionVO {
                 continue;
             }
 
-            QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-            QuestionVO question = new QuestionVO(questionNode.getId(), questionNode.getQuestionId(), questionNode.getPreviousQuestionId(), questionNode.getContent(), questionNode.getPhase(), questionContent);
+            QuestionVO question = buildFromNode(questionNode);
             questionList.add(question);
         }
 

@@ -2,7 +2,7 @@ package com.yi.psms.service;
 
 import com.yi.psms.dao.StudentNodeRepository;
 import com.yi.psms.model.vo.ResponseVO;
-import com.yi.psms.model.vo.student.StudentItem;
+import com.yi.psms.model.vo.student.StudentItemVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +17,11 @@ public class StudentService extends BaseService {
     }
 
     public ResponseVO getStudentByStudentId(Integer studentId) {
-        return response(StudentItem.buildFromNode(studentNodeRepository.findByStudentId(studentId)));
+        return response(StudentItemVO.buildFromNode(studentNodeRepository.findByStudentId(studentId)));
     }
 
     public ResponseVO getStudentByName(String name) {
-        return response(StudentItem.buildListFromNodeList(studentNodeRepository.findByName(name)));
+        return response(StudentItemVO.buildListFromNodeList(studentNodeRepository.findByName(name)));
     }
-
-//    public ResponseVO getAllStudents() {
-//        return response(studentNodeRepository.findAll());
-//    }
 
 }

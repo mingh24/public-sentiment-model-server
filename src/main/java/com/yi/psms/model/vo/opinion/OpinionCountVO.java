@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class OpinionCountItem {
+public class OpinionCountVO {
 
     @JsonProperty("name")
     private String name;
@@ -12,7 +12,7 @@ public class OpinionCountItem {
     @JsonProperty("count")
     private Integer count;
 
-    public OpinionCountItem(String name, Integer count) {
+    public OpinionCountVO(String name, Integer count) {
         this.name = name;
         this.count = count;
     }

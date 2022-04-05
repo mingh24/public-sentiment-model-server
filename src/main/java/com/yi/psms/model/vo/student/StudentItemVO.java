@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class StudentItem {
+public class StudentItemVO {
 
     @JsonProperty("id")
     private Long id;
@@ -26,7 +26,7 @@ public class StudentItem {
     @JsonProperty("dormitory")
     private String dormitory;
 
-    public StudentItem(Long id, Integer studentId, String name, String sclass, String dormitory) {
+    public StudentItemVO(Long id, Integer studentId, String name, String sclass, String dormitory) {
         this.id = id;
         this.studentId = studentId;
         this.name = name;
@@ -34,15 +34,15 @@ public class StudentItem {
         this.dormitory = dormitory;
     }
 
-    public static StudentItem buildFromNode(StudentNode studentNode) {
-        return new StudentItem(studentNode.getId(), studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass(), studentNode.getDormitory());
+    public static StudentItemVO buildFromNode(StudentNode studentNode) {
+        return new StudentItemVO(studentNode.getId(), studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass(), studentNode.getDormitory());
     }
 
-    public static List<StudentItem> buildListFromNodeList(List<StudentNode> studentNodeList) {
-        List<StudentItem> studentItemList = new ArrayList<>();
+    public static List<StudentItemVO> buildListFromNodeList(List<StudentNode> studentNodeList) {
+        List<StudentItemVO> studentItemList = new ArrayList<>();
 
         for (val studentNode : studentNodeList) {
-            StudentItem studentItem = new StudentItem(studentNode.getId(), studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass(), studentNode.getDormitory());
+            StudentItemVO studentItem = buildFromNode(studentNode);
             studentItemList.add(studentItem);
         }
 

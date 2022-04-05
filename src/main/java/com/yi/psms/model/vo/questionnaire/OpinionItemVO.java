@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class OpinionItem {
+public class OpinionItemVO {
 
     @JsonProperty("questionId")
     @NotNull(message = "问题ID不能为 null")

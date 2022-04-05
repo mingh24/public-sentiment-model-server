@@ -6,15 +6,15 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class OpinionDistributionItem {
+public class OpinionDistributionVO {
 
     @JsonProperty("attitudeOverallDist")
-    private List<OpinionCountItem> attitudeOverallDist;
+    private List<OpinionCountVO> attitudeOverallDist;
 
     @JsonProperty("priceOptionOverallDist")
-    private List<OpinionCountItem> priceOptionOverallDist;
+    private List<OpinionCountVO> priceOptionOverallDist;
 
     @JsonProperty("lengthOptionOverallDist")
-    private List<OpinionCountItem> lengthOptionOverallDist;
+    private List<OpinionCountVO> lengthOptionOverallDist;
 
 }

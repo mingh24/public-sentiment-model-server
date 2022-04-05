@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class FriendItem {
+public class FriendItemVO {
 
     @JsonProperty("name")
     @NotBlank(message = "朋友姓名不能为 null 或 空值")

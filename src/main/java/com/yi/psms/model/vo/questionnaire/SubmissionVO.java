@@ -11,7 +11,7 @@ import javax.validation.groups.Default;
 import java.util.List;
 
 @Data
-public class Submission {
+public class SubmissionVO {
 
     @JsonProperty("studentId")
     @NotNull(message = "学号不能为 null", groups = {Essential.class, Advanced.class})
@@ -29,12 +29,12 @@ public class Submission {
 
     @JsonProperty("friendItemList")
     @NotEmpty(message = "朋友关系列表不能为 null 或 空值", groups = {Essential.class})
-    private List<@Valid FriendItem> friendItemList;
+    private List<@Valid FriendItemVO> friendItemList;
 
     @JsonProperty("opinionItem")
     @NotNull(message = "意见不能为 null", groups = {Essential.class, Advanced.class})
     @Valid
-    private OpinionItem opinionItem;
+    private OpinionItemVO opinionItem;
 
     public interface Essential extends Default {
     }
