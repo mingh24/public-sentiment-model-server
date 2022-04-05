@@ -1,6 +1,6 @@
 package com.yi.psms.dao;
 
-import com.yi.psms.model.entity.QuestionNode;
+import com.yi.psms.model.entity.node.QuestionNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;

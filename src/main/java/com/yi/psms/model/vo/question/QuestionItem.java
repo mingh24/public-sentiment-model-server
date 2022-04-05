@@ -1,7 +1,7 @@
 package com.yi.psms.model.vo.question;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yi.psms.model.entity.QuestionNode;
+import com.yi.psms.model.entity.node.QuestionNode;
 import lombok.Data;
 import lombok.val;
 

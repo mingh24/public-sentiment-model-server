@@ -4,7 +4,12 @@ import com.google.gson.Gson;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
-import com.yi.psms.model.entity.*;
+import com.yi.psms.model.entity.node.QuestionNode;
+import com.yi.psms.model.entity.node.StudentNode;
+import com.yi.psms.model.vo.question.LengthQuestionVO;
+import com.yi.psms.model.entity.question.OptionQuestion;
+import com.yi.psms.model.vo.question.PriceQuestionVO;
+import com.yi.psms.model.vo.question.QuestionContent;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItem;
 import com.yi.psms.model.vo.questionnaire.OpinionItem;
@@ -71,18 +76,18 @@ public class QuestionnaireService extends BaseService {
         // 判断额外问题是否已填写
         Gson gson = new Gson();
         QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
-        ExtraQuestion priceQuestion = questionContent.getPriceQuestion();
-        ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
+        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestionVO();
+        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestionVO();
 
-        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
-            if (getExtraQuestionOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey()) == null) {
+        if (opinionItem.getAttitude() > priceQuestionVO.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
             }
         }
 
-        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
-            if (getExtraQuestionOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey()) == null) {
+        if (opinionItem.getAttitude() > lengthQuestionVO.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
             }
@@ -112,8 +117,8 @@ public class QuestionnaireService extends BaseService {
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
-        String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
+        String priceOption = buildPriceOption(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
         log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 
@@ -143,39 +148,39 @@ public class QuestionnaireService extends BaseService {
         // 判断额外问题是否已填写
         Gson gson = new Gson();
         QuestionContent questionContent = gson.fromJson(questionNode.getContent(), QuestionContent.class);
-        ExtraQuestion priceQuestion = questionContent.getPriceQuestion();
-        ExtraQuestion lengthQuestion = questionContent.getLengthQuestion();
+        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestionVO();
+        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestionVO();
 
-        if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
-            if (getExtraQuestionOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey()) == null) {
+        if (opinionItem.getAttitude() > priceQuestionVO.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("价格问题选项有误：%s", opinionItem.getPriceOptionKey()));
             }
         }
 
-        if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
-            if (getExtraQuestionOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey()) == null) {
+        if (opinionItem.getAttitude() > lengthQuestionVO.getAttitudeThreshold()) {
+            if (getOptionByOptionKey(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
                 return failResponse(ResponseStatus.FAIL, String.format("时长问题选项有误：%s", opinionItem.getLengthOptionKey()));
             }
         }
 
-        // TODO 针对后续阶段，判断观点表达问题是否已填写
+        // TODO 针对后续阶段，判断看法问题是否已填写
 
         // 删除已存在的意见
         Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId);
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
 
         // 设置意见
-        String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
-        String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
+        String priceOption = buildPriceOption(priceQuestionVO.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
+        String lengthOption = buildLengthOption(lengthQuestionVO.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
         Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
         log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 
         return response();
     }
 
-    private ExtraQuestion.Option getExtraQuestionOption(List<ExtraQuestion.Option> optionList, String optionKey) {
+    private OptionQuestion.Option getOptionByOptionKey(List<OptionQuestion.Option> optionList, String optionKey) {
         for (val o : optionList) {
             if (o.getOptionKey().equals(optionKey)) {
                 return o;
@@ -185,8 +190,8 @@ public class QuestionnaireService extends BaseService {
         return null;
     }
 
-    private String buildPriceOption(List<ExtraQuestion.Option> optionList, String optionKey) {
-        var o = getExtraQuestionOption(optionList, optionKey);
+    private String buildPriceOption(List<OptionQuestion.Option> optionList, String optionKey) {
+        var o = getOptionByOptionKey(optionList, optionKey);
         if (o == null) {
             return null;
         }
@@ -194,8 +199,8 @@ public class QuestionnaireService extends BaseService {
         return Neo4jHelper.buildPriceOptionString(o.getOptionKey(), o.getOptionValue());
     }
 
-    private String buildLengthOption(List<ExtraQuestion.Option> optionList, String optionKey) {
-        var o = getExtraQuestionOption(optionList, optionKey);
+    private String buildLengthOption(List<OptionQuestion.Option> optionList, String optionKey) {
+        var o = getOptionByOptionKey(optionList, optionKey);
         if (o == null) {
             return null;
         }

@@ -1,7 +1,7 @@
 package com.yi.psms.model.vo.student;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yi.psms.model.entity.StudentNode;
+import com.yi.psms.model.entity.node.StudentNode;
 import lombok.Data;
 import lombok.val;
 

@@ -1,18 +1,14 @@
-package com.yi.psms.model.entity;
+package com.yi.psms.model.entity.question;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class ExtraQuestion {
-
-    @SerializedName(value = "attitudeThreshold")
-    private Integer attitudeThreshold;
-
-    @SerializedName(value = "content")
-    private String content;
+public class OptionQuestion extends BaseQuestion{
 
     @SerializedName(value = "option")
     private List<Option> option;

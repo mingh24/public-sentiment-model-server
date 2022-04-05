@@ -1,4 +1,4 @@
-package com.yi.psms.model.entity;
+package com.yi.psms.model.entity.node;
 
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.*;

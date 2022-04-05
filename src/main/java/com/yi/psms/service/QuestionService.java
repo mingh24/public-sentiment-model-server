@@ -2,7 +2,7 @@ package com.yi.psms.service;
 
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
-import com.yi.psms.model.entity.QuestionNode;
+import com.yi.psms.model.entity.node.QuestionNode;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.question.QuestionItem;
 import lombok.extern.slf4j.Slf4j;
