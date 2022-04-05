@@ -127,7 +127,7 @@ public class OpinionService extends BaseService {
         return response(opinionDistributionItem);
     }
 
-    public ResponseVO getOpinionOverallDistribution(Integer questionId) {
+    public ResponseVO getViewOverallDistribution(Integer questionId) {
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -143,7 +143,7 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应上一阶段问题信息：%s", previousQuestionId));
         }
 
-        // TODO 获取观点表达整体分布
+        // TODO 获取看法整体分布
 
         return response();
     }
@@ -174,7 +174,7 @@ public class OpinionService extends BaseService {
         var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistributionItem, questionId, lengthQuestion);
         completableFutureList.add(lengthOptionDistFuture);
 
-        // TODO 获取观点表达整体分布
+        // TODO 获取看法整体分布
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
@@ -240,8 +240,8 @@ public class OpinionService extends BaseService {
         });
     }
 
-    public CompletableFuture<Void> attachOpinionOverallDistribution() {
-        // TODO 获取观点表达整体分布
+    public CompletableFuture<Void> attachViewOverallDistribution() {
+        // TODO 获取看法整体分布
 
         return null;
     }

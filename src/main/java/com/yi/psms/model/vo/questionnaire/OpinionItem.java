@@ -24,7 +24,7 @@ public class OpinionItem {
     @JsonProperty("lengthOptionKey")
     private String lengthOptionKey;
 
-    @JsonProperty("opinion")
-    private String opinion;
+    @JsonProperty("view")
+    private String view;
 
 }

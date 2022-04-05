@@ -37,10 +37,10 @@ public class OpinionController extends BaseController {
         return opinionService.getLengthOptionOverallDistribution(questionId);
     }
 
-    @GetMapping("/opinion/overall-distribution/{questionId}")
+    @GetMapping("/view/overall-distribution/{questionId}")
     public ResponseVO getOpinionOverallDistribution(@PathVariable Integer questionId) {
-        log.info("----- requested url: /opinions/opinion/overall-distribution/{} -----", questionId);
-        return opinionService.getOpinionOverallDistribution(questionId);
+        log.info("----- requested url: /opinions/view/overall-distribution/{} -----", questionId);
+        return opinionService.getViewOverallDistribution(questionId);
     }
 
     @GetMapping("/all/overall-distribution/{questionId}")

@@ -114,8 +114,8 @@ public class QuestionnaireService extends BaseService {
         // 设置意见
         String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
         String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion(), currentDateTime);
-        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 
         return response();
     }
@@ -169,8 +169,8 @@ public class QuestionnaireService extends BaseService {
         // 设置意见
         String priceOption = buildPriceOption(priceQuestion.getOption(), opinionItem.getPriceOptionKey());
         String lengthOption = buildLengthOption(lengthQuestion.getOption(), opinionItem.getLengthOptionKey());
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion(), currentDateTime);
-        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, opinion: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getOpinion());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
 
         return response();
     }
