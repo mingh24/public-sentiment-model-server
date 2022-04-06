@@ -15,7 +15,6 @@ public class OpinionItemVO {
 
     @JsonProperty("attitude")
     @NotNull(message = "观点支持度不能为 null")
-    @Range(min = 0, max = 10, message = "观点支持度不合法")
     private Integer attitude;
 
     @JsonProperty("priceOptionKey")

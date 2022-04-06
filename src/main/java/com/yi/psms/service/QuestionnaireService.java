@@ -1,15 +1,12 @@
 package com.yi.psms.service;
 
-import com.google.gson.Gson;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
 import com.yi.psms.model.entity.node.StudentNode;
-import com.yi.psms.model.vo.question.LengthQuestionVO;
+import com.yi.psms.model.vo.question.*;
 import com.yi.psms.model.entity.question.OptionQuestion;
-import com.yi.psms.model.vo.question.PriceQuestionVO;
-import com.yi.psms.model.vo.question.QuestionContentVO;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItemVO;
 import com.yi.psms.model.vo.questionnaire.OpinionItemVO;
@@ -73,11 +70,16 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断额外问题是否已填写
-        Gson gson = new Gson();
-        QuestionContentVO questionContent = gson.fromJson(questionNode.getContent(), QuestionContentVO.class);
+        // 判断问题是否已填写
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
         PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
         LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
+
+        if (opinionItem.getAttitude() < attitudeQuestion.getNumberBoundaryQuestion().getMin() || opinionItem.getAttitude() > attitudeQuestion.getNumberBoundaryQuestion().getMax()) {
+            log.warn("student {} set invalid attitude, questionId: {}, attitude: {}", studentId, questionId, opinionItem.getAttitude());
+            return failResponse(ResponseStatus.FAIL, String.format("观点支持度问题支持度有误：%s", opinionItem.getAttitude()));
+        }
 
         if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
@@ -145,11 +147,16 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断额外问题是否已填写
-        Gson gson = new Gson();
-        QuestionContentVO questionContent = gson.fromJson(questionNode.getContent(), QuestionContentVO.class);
+        // 判断问题是否已填写
+        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
+        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
         PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
         LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
+
+        if (opinionItem.getAttitude() < attitudeQuestion.getNumberBoundaryQuestion().getMin() || opinionItem.getAttitude() > attitudeQuestion.getNumberBoundaryQuestion().getMax()) {
+            log.warn("student {} set invalid attitude, questionId: {}, attitude: {}", studentId, questionId, opinionItem.getAttitude());
+            return failResponse(ResponseStatus.FAIL, String.format("观点支持度问题支持度有误：%s", opinionItem.getAttitude()));
+        }
 
         if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
