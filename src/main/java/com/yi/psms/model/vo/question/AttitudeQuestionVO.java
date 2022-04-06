@@ -1,5 +1,6 @@
 package com.yi.psms.model.vo.question;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import com.yi.psms.model.entity.question.NumberBoundaryQuestion;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Data;
 public class AttitudeQuestionVO {
 
     @SerializedName(value = "numberBoundaryQuestion")
+    @JsonProperty(value = "numberBoundaryQuestion")
     private NumberBoundaryQuestion numberBoundaryQuestion;
 
 }
