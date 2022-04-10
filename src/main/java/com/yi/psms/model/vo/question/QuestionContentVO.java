@@ -20,7 +20,9 @@ public class QuestionContentVO {
     @JsonProperty(value = "lengthQuestion")
     LengthQuestionVO lengthQuestion;
 
-    // TODO 看法问题
+    @SerializedName(value = "viewQuestion")
+    @JsonProperty(value = "viewQuestion")
+    ViewQuestion viewQuestion;
 
     public static QuestionContentVO buildFromContentString(String content) {
         Gson gson = new Gson();

@@ -172,8 +172,6 @@ public class QuestionnaireService extends BaseService {
             }
         }
 
-        // TODO 针对后续阶段，判断看法问题是否已填写
-
         // 删除已存在的意见
         Integer deletedOpinionCount = studentNodeRepository.deleteOpinion(studentId, questionId);
         log.info("student {} deleted opinion relationship count {}, question id: {}", studentId, deletedOpinionCount, questionId);
