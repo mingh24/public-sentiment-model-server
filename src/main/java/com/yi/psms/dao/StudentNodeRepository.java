@@ -38,7 +38,7 @@ public interface StudentNodeRepository extends Neo4jRepository<StudentNode, Long
     @Query("MATCH (s:Student)-[r:OPINION]->(q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId DELETE r RETURN count(r)")
     Integer deleteOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId);
 
-    @Query("MATCH (s:Student), (q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId CREATE (s)-[r:OPINION {attitude: $attitude, priceOption: $priceOption, lengthOption: $lengthOption, opinion: $opinion, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q) RETURN count(r)")
-    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("priceOption") String priceOption, @Param("lengthOption") String lengthOption, @Param("opinion") String opinion, @Param("currentDateTime") LocalDateTime currentDateTime);
+    @Query("MATCH (s:Student), (q:Question) WHERE s.studentId = $studentId AND q.questionId = $questionId CREATE (s)-[r:OPINION {attitude: $attitude, priceOption: $priceOption, lengthOption: $lengthOption, view: $view, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q) RETURN count(r)")
+    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("priceOption") String priceOption, @Param("lengthOption") String lengthOption, @Param("view") String view, @Param("currentDateTime") LocalDateTime currentDateTime);
 
 }
