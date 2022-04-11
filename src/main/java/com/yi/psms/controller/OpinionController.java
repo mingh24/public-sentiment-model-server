@@ -49,4 +49,34 @@ public class OpinionController extends BaseController {
         return opinionService.getAllOverallDistribution(questionId);
     }
 
+    @GetMapping("/attitude/intimate-distribution/{studentId}/{questionId}")
+    public ResponseVO getAttitudeIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/attitude/intimate-distribution/{}/{} -----", studentId, questionId);
+        return opinionService.getAttitudeIntimateDistribution(studentId, questionId);
+    }
+
+    @GetMapping("/price-option/intimate-distribution/{studentId}/{questionId}")
+    public ResponseVO getPriceOptionIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/price-option/intimate-distribution/{}/{} -----", studentId, questionId);
+        return opinionService.getPriceOptionIntimateDistribution(studentId, questionId);
+    }
+
+    @GetMapping("/length-option/intimate-distribution/{studentId}/{questionId}")
+    public ResponseVO getLengthOptionIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/length-option/intimate-distribution/{}/{} -----", studentId, questionId);
+        return opinionService.getLengthOptionIntimateDistribution(studentId, questionId);
+    }
+
+    @GetMapping("/view/intimate-distribution/{studentId}/{questionId}")
+    public ResponseVO getViewIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/view/intimate-distribution/{}/{} -----", studentId, questionId);
+        return opinionService.getViewIntimateDistribution(studentId, questionId);
+    }
+
+    @GetMapping("/all/intimate-distribution/{studentId}/{questionId}")
+    public ResponseVO getAllIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/all/intimate-distribution/{}/{} -----", studentId, questionId);
+        return opinionService.getAllIntimateDistribution(studentId, questionId);
+    }
+
 }
