@@ -68,7 +68,7 @@ public class ControllerAdvice implements RequestBodyAdvice {
     @ExceptionHandler(Exception.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.OK)
     public ResponseVO handleException(Exception exception) {
-        log.warn("exception: {}", exception.toString());
+        log.error("exception: {}", exception.getMessage(), exception);
         return new ResponseVO(ResponseStatus.INTERNAL_SERVER_ERROR, "服务器内部错误", null);
     }
 
