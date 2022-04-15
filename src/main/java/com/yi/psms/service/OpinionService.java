@@ -161,6 +161,12 @@ public class OpinionService extends BaseService {
     }
 
     public ResponseVO getAttitudeIntimateDistribution(Integer studentId, Integer questionId) {
+        // 判断填写人信息是否存在
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -186,6 +192,12 @@ public class OpinionService extends BaseService {
     }
 
     public ResponseVO getPriceOptionIntimateDistribution(Integer studentId, Integer questionId) {
+        // 判断填写人信息是否存在
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -209,6 +221,12 @@ public class OpinionService extends BaseService {
     }
 
     public ResponseVO getLengthOptionIntimateDistribution(Integer studentId, Integer questionId) {
+        // 判断填写人信息是否存在
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -232,6 +250,12 @@ public class OpinionService extends BaseService {
     }
 
     public ResponseVO getViewIntimateDistribution(Integer studentId, Integer questionId) {
+        // 判断填写人信息是否存在
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
@@ -245,6 +269,12 @@ public class OpinionService extends BaseService {
     }
 
     public ResponseVO getAllIntimateDistribution(Integer studentId, Integer questionId) {
+        // 判断填写人信息是否存在
+        if (studentNodeRepository.findByStudentId(studentId) == null) {
+            log.warn("student {} does not exist", studentId);
+            return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
+        }
+
         // 判断问题信息是否存在
         QuestionNode questionNode = questionNodeRepository.findByQuestionId(questionId);
         if (questionNode == null) {
