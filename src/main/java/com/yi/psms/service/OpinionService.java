@@ -2,6 +2,7 @@ package com.yi.psms.service;
 
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
+import com.yi.psms.dao.StudentNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.opinion.IntimateOpinionItemVO;
@@ -27,9 +28,12 @@ import java.util.stream.Collectors;
 @Service
 public class OpinionService extends BaseService {
 
+    private final StudentNodeRepository studentNodeRepository;
+
     private final QuestionNodeRepository questionNodeRepository;
 
-    public OpinionService(QuestionNodeRepository questionNodeRepository) {
+    public OpinionService(StudentNodeRepository studentNodeRepository, QuestionNodeRepository questionNodeRepository) {
+        this.studentNodeRepository = studentNodeRepository;
         this.questionNodeRepository = questionNodeRepository;
     }
 
@@ -188,6 +192,10 @@ public class OpinionService extends BaseService {
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
 
+        if (opinionDistribution.getAttitudeIntimateDist().size() == 0) {
+            return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
+        }
+
         return response(opinionDistribution);
     }
 
@@ -217,6 +225,10 @@ public class OpinionService extends BaseService {
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
 
+        if (opinionDistribution.getPriceOptionIntimateDist().size() == 0) {
+            return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
+        }
+
         return response(opinionDistribution);
     }
 
@@ -245,6 +257,10 @@ public class OpinionService extends BaseService {
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
+
+        if (opinionDistribution.getLengthOptionIntimateDist().size() == 0) {
+            return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
+        }
 
         return response(opinionDistribution);
     }
@@ -305,6 +321,12 @@ public class OpinionService extends BaseService {
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
+
+        if (opinionDistribution.getAttitudeIntimateDist().size() == 0 ||
+                opinionDistribution.getPriceOptionIntimateDist().size() == 0 ||
+                opinionDistribution.getLengthOptionIntimateDist().size() == 0) {
+            return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
+        }
 
         return response(opinionDistribution);
     }
