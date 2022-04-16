@@ -474,8 +474,10 @@ public class OpinionService extends BaseService {
             }
 
             priceOptionCounter.forEach((key, value) -> {
-                var o = new OpinionCountVO(Neo4jHelper.parsePriceOptionString(key)[1], value[0]);
-                opinionCountList.add(o);
+                if (key != null) {
+                    var o = new OpinionCountVO(Neo4jHelper.parsePriceOptionString(key)[1], value[0]);
+                    opinionCountList.add(o);
+                }
             });
 
             opinionDistribution.setPriceOptionIntimateDist(opinionCountList);
@@ -504,8 +506,10 @@ public class OpinionService extends BaseService {
             }
 
             LengthOptionCounter.forEach((key, value) -> {
-                var o = new OpinionCountVO(Neo4jHelper.parseLengthOptionString(key)[1], value[0]);
-                opinionCountList.add(o);
+                if (key != null) {
+                    var o = new OpinionCountVO(Neo4jHelper.parseLengthOptionString(key)[1], value[0]);
+                    opinionCountList.add(o);
+                }
             });
 
             opinionDistribution.setLengthOptionIntimateDist(opinionCountList);
