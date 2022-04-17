@@ -8,6 +8,7 @@ import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.opinion.IntimateOpinionItemVO;
 import com.yi.psms.model.vo.opinion.OpinionCountVO;
 import com.yi.psms.model.vo.opinion.OpinionDistributionVO;
+import com.yi.psms.model.vo.opinion.ViewDistributionVO;
 import com.yi.psms.model.vo.question.AttitudeQuestionVO;
 import com.yi.psms.model.vo.question.LengthQuestionVO;
 import com.yi.psms.model.vo.question.PriceQuestionVO;
@@ -193,6 +194,7 @@ public class OpinionService extends BaseService {
         allFuture.join();
 
         if (opinionDistribution.getAttitudeIntimateDist().size() == 0) {
+            log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
             return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
         }
 
@@ -226,6 +228,7 @@ public class OpinionService extends BaseService {
         allFuture.join();
 
         if (opinionDistribution.getPriceOptionIntimateDist().size() == 0) {
+            log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
             return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
         }
 
@@ -259,6 +262,7 @@ public class OpinionService extends BaseService {
         allFuture.join();
 
         if (opinionDistribution.getLengthOptionIntimateDist().size() == 0) {
+            log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
             return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
         }
 
@@ -279,9 +283,24 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // TODO 获取看法结果在亲密同学中的分布
+        // 获取看法问题结果在亲密同学中的分布
+        OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        return response();
+        var viewDistFuture = attachViewIntimateDistribution(opinionDistribution, studentId, questionId);
+        if (viewDistFuture != null) {
+            completableFutureList.add(viewDistFuture);
+        }
+
+        var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
+        allFuture.join();
+
+        if (opinionDistribution.getViewIntimateDist() == null) {
+            log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
+            return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
+        }
+
+        return response(opinionDistribution);
     }
 
     public ResponseVO getAllIntimateDistribution(Integer studentId, Integer questionId) {
@@ -317,14 +336,19 @@ public class OpinionService extends BaseService {
             completableFutureList.add(lengthOptionDistFuture);
         }
 
-        // TODO 获取看法结果在亲密同学中的分布
+        var viewDistFuture = attachViewIntimateDistribution(opinionDistribution, studentId, questionId);
+        if (viewDistFuture != null) {
+            completableFutureList.add(viewDistFuture);
+        }
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
 
         if (opinionDistribution.getAttitudeIntimateDist().size() == 0 ||
                 opinionDistribution.getPriceOptionIntimateDist().size() == 0 ||
-                opinionDistribution.getLengthOptionIntimateDist().size() == 0) {
+                opinionDistribution.getLengthOptionIntimateDist().size() == 0 ||
+                opinionDistribution.getViewIntimateDist() == null) {
+            log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
             return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
         }
 
@@ -516,10 +540,29 @@ public class OpinionService extends BaseService {
         });
     }
 
-    public CompletableFuture<Void> attachViewIntimateDistribution() {
-        // TODO 获取看法结果在亲密同学中的分布
+    public CompletableFuture<List<MapValue>> attachViewIntimateDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer studentId, Integer questionId) {
+        return questionNodeRepository.getIntimateOpinionByStudentIdAndQuestionId(studentId, questionId).whenComplete((v, throwable) -> {
+            List<String> viewList = new ArrayList<>();
+            List<IntimateOpinionItemVO> rawOpinionList = new ArrayList<>();
 
-        return null;
+            for (val mapValue : v) {
+                rawOpinionList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), IntimateOpinionItemVO.class));
+            }
+
+            var finalOpinionList = extractIntimateTopOpinionItem(rawOpinionList);
+
+            for (val opinion : finalOpinionList) {
+                if (opinion.getView() != null) {
+                    viewList.add(opinion.getView().trim());
+                }
+            }
+
+            if (opinionDistribution.getViewIntimateDist() == null) {
+                opinionDistribution.setViewIntimateDist(new ViewDistributionVO());
+            }
+
+            opinionDistribution.getViewIntimateDist().setViewList(viewList);
+        });
     }
 
     private List<IntimateOpinionItemVO> extractIntimateTopOpinionItem(List<IntimateOpinionItemVO> rawOpinionList) {
