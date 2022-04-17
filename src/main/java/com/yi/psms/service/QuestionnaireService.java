@@ -43,24 +43,6 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", studentId));
         }
 
-        // 判断好友信息是否存在
-        List<FriendItemVO> friendItemList = submission.getFriendItemList();
-        for (val friendItem : friendItemList) {
-            List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
-            if (studentNodeList.size() <= 0) {
-                log.warn("student {} entered nonexistent friend, name: {}", studentId, friendItem.getName());
-                return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", friendItem.getName()));
-            }
-
-            // 好友不能填自己
-            for (val studentNode : studentNodeList) {
-                if (studentNode.getStudentId().equals(studentId)) {
-                    log.warn("student {} entered itself as a friend", studentId);
-                    return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
-                }
-            }
-        }
-
         // 判断问题信息是否存在
         OpinionItemVO opinionItem = submission.getOpinionItem();
         Integer questionId = opinionItem.getQuestionId();
@@ -70,17 +52,55 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断问题是否已填写
+        // 校验班级同学亲密度问题
         QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
-        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
-        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
+        ClassmateIntimacyQuestion classmateIntimacyQuestion = questionContent.getClassmateIntimacyQuestion();
+        if (submission.getClassmateIntimacy() < classmateIntimacyQuestion.getNumberBoundaryQuestion().getMin() || submission.getClassmateIntimacy() > classmateIntimacyQuestion.getNumberBoundaryQuestion().getMax()) {
+            log.warn("student {} set invalid classmate intimacy, questionId: {}, intimacy: {}", studentId, questionId, submission.getClassmateIntimacy());
+            return failResponse(ResponseStatus.FAIL, String.format("班级同学亲密度问题亲密度有误：%s", submission.getClassmateIntimacy()));
+        }
 
+        // 校验舍友亲密度问题
+        RoommateIntimacyQuestion roommateIntimacyQuestion = questionContent.getRoommateIntimacyQuestion();
+        if (submission.getRoommateIntimacy() < roommateIntimacyQuestion.getNumberBoundaryQuestion().getMin() || submission.getRoommateIntimacy() > roommateIntimacyQuestion.getNumberBoundaryQuestion().getMax()) {
+            log.warn("student {} set invalid roommate intimacy, questionId: {}, intimacy: {}", studentId, questionId, submission.getRoommateIntimacy());
+            return failResponse(ResponseStatus.FAIL, String.format("舍友亲密度问题亲密度有误：%s", submission.getRoommateIntimacy()));
+        }
+
+        // 校验好友亲密度问题
+        FriendIntimacyQuestion friendIntimacyQuestion = questionContent.getFriendIntimacyQuestion();
+        List<FriendItemVO> friendItemList = submission.getFriendItemList();
+        for (val friendItem : friendItemList) {
+            List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
+            if (studentNodeList.size() <= 0) {
+                log.warn("student {} entered nonexistent friend, name: {}", studentId, friendItem.getName());
+                return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", friendItem.getName()));
+            }
+
+            // TODO 确认一下，填写同名同学为好友是否有问题
+            // 好友不能填自己
+            for (val studentNode : studentNodeList) {
+                if (studentNode.getStudentId().equals(studentId)) {
+                    log.warn("student {} entered itself as a friend", studentId);
+                    return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
+                }
+            }
+
+            if (friendItem.getIntimacy() < friendIntimacyQuestion.getNumberBoundaryQuestion().getMin() || friendItem.getIntimacy() > friendIntimacyQuestion.getNumberBoundaryQuestion().getMax()) {
+                log.warn("student {} set invalid friend intimacy, questionId: {}, intimacy: {}", studentId, questionId, friendItem.getIntimacy());
+                return failResponse(ResponseStatus.FAIL, String.format("好友亲密度问题亲密度有误：%s", friendItem.getIntimacy()));
+            }
+        }
+
+        // 校验观点支持度问题
+        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
         if (opinionItem.getAttitude() < attitudeQuestion.getNumberBoundaryQuestion().getMin() || opinionItem.getAttitude() > attitudeQuestion.getNumberBoundaryQuestion().getMax()) {
             log.warn("student {} set invalid attitude, questionId: {}, attitude: {}", studentId, questionId, opinionItem.getAttitude());
             return failResponse(ResponseStatus.FAIL, String.format("观点支持度问题支持度有误：%s", opinionItem.getAttitude()));
         }
 
+        // 校验价格问题
+        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
         if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
@@ -88,6 +108,8 @@ public class QuestionnaireService extends BaseService {
             }
         }
 
+        // 校验时长问题
+        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
         if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());
@@ -147,17 +169,16 @@ public class QuestionnaireService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 判断问题是否已填写
+        // 校验观点支持度问题
         QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
         AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
-        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
-        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
-
         if (opinionItem.getAttitude() < attitudeQuestion.getNumberBoundaryQuestion().getMin() || opinionItem.getAttitude() > attitudeQuestion.getNumberBoundaryQuestion().getMax()) {
             log.warn("student {} set invalid attitude, questionId: {}, attitude: {}", studentId, questionId, opinionItem.getAttitude());
             return failResponse(ResponseStatus.FAIL, String.format("观点支持度问题支持度有误：%s", opinionItem.getAttitude()));
         }
 
+        // 校验价格问题
+        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
         if (opinionItem.getAttitude() > priceQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey()) == null) {
                 log.warn("student {} picked nonexistent price option key, questionId: {}, price option key: {}", studentId, questionId, opinionItem.getPriceOptionKey());
@@ -165,6 +186,8 @@ public class QuestionnaireService extends BaseService {
             }
         }
 
+        // 校验时长问题
+        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
         if (opinionItem.getAttitude() > lengthQuestion.getAttitudeThreshold()) {
             if (getOptionByOptionKey(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey()) == null) {
                 log.warn("student {} picked nonexistent length option key, questionId: {}, length option key: {}", studentId, questionId, opinionItem.getLengthOptionKey());

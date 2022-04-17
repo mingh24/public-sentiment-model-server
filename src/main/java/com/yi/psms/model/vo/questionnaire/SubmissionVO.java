@@ -2,7 +2,6 @@ package com.yi.psms.model.vo.questionnaire;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -19,12 +18,10 @@ public class SubmissionVO {
 
     @JsonProperty("classmateIntimacy")
     @NotNull(message = "班级同学亲密度不能为 null", groups = {Essential.class})
-    @Range(min = 1, max = 10, message = "班级同学亲密度值不合法", groups = {Essential.class})
     private Integer classmateIntimacy;
 
     @JsonProperty("roommateIntimacy")
-    @NotNull(message = "宿舍同学亲密度不能为 null", groups = {Essential.class})
-    @Range(min = 1, max = 10, message = "宿舍同学亲密度值不合法", groups = {Essential.class})
+    @NotNull(message = "舍友亲密度不能为 null", groups = {Essential.class})
     private Integer roommateIntimacy;
 
     @JsonProperty("friendItemList")
