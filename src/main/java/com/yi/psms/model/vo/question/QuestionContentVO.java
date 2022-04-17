@@ -8,6 +8,18 @@ import lombok.Data;
 @Data
 public class QuestionContentVO {
 
+    @SerializedName(value = "classmateIntimacyQuestion")
+    @JsonProperty(value = "classmateIntimacyQuestion")
+    ClassmateIntimacyQuestion classmateIntimacyQuestion;
+
+    @SerializedName(value = "roommateIntimacyQuestion")
+    @JsonProperty(value = "roommateIntimacyQuestion")
+    RoommateIntimacyQuestion roommateIntimacyQuestion;
+
+    @SerializedName(value = "friendIntimacyQuestion")
+    @JsonProperty(value = "friendIntimacyQuestion")
+    FriendIntimacyQuestion friendIntimacyQuestion;
+
     @SerializedName(value = "attitudeQuestion")
     @JsonProperty(value = "attitudeQuestion")
     AttitudeQuestionVO attitudeQuestion;
