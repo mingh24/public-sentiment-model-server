@@ -19,16 +19,16 @@ public interface QuestionNodeRepository extends Neo4jRepository<QuestionNode, Lo
     List<QuestionNode> findAll();
 
     @Async
-    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId AND r.attitude = $attitude RETURN count(*)")
-    CompletableFuture<Integer> countByQuestionIdAndAttitude(@Param("questionId") Integer questionId, @Param("attitude") Integer attitude);
+    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId WITH r.attitude AS attitude, count(*) AS count ORDER BY count DESC RETURN {name: attitude, count: count}")
+    CompletableFuture<List<MapValue>> countOpinionByAttitude(@Param("questionId") Integer questionId);
 
     @Async
-    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId AND r.priceOption = $priceOption RETURN count(*)")
-    CompletableFuture<Integer> countByQuestionIdAndPriceOption(@Param("questionId") Integer questionId, @Param("priceOption") String priceOption);
+    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId WITH r.priceOption AS priceOption, count(*) AS count ORDER BY count DESC RETURN {name: priceOption, count: count}")
+    CompletableFuture<List<MapValue>> countOpinionByPriceOption(@Param("questionId") Integer questionId);
 
     @Async
-    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId AND r.lengthOption = $lengthOption RETURN count(*)")
-    CompletableFuture<Integer> countByQuestionIdAndLengthOption(@Param("questionId") Integer questionId, @Param("lengthOption") String lengthOption);
+    @Query("MATCH (:Student)-[r:OPINION]->(q:Question) WHERE q.questionId = $questionId WITH r.lengthOption AS lengthOption, count(*) AS count ORDER BY count DESC RETURN {name: lengthOption, count: count}")
+    CompletableFuture<List<MapValue>> countOpinionByLengthOption(@Param("questionId") Integer questionId);
 
     @Async
     @Query("MATCH (s1:Student)-[r:FRIEND|ROOMMATE|CLASSMATE]->(s2:Student) WHERE s1.studentId = $studentId AND r.intimacy IS NOT NULL WITH s2, r ORDER BY r.intimacy DESC, s2.studentId ASC MATCH(s2)-[o:OPINION]->(q:Question) WHERE q.questionId = $questionId RETURN {studentId: s2.studentId, relationship: type(r), intimacy: r.intimacy, attitude: o.attitude, priceOption: o.priceOption, lengthOption: o.lengthOption, view: o.view}")

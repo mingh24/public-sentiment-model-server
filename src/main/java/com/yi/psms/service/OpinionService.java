@@ -9,10 +9,6 @@ import com.yi.psms.model.vo.opinion.IntimateOpinionItemVO;
 import com.yi.psms.model.vo.opinion.OpinionCountVO;
 import com.yi.psms.model.vo.opinion.OpinionDistributionVO;
 import com.yi.psms.model.vo.opinion.ViewDistributionVO;
-import com.yi.psms.model.vo.question.AttitudeQuestionVO;
-import com.yi.psms.model.vo.question.LengthQuestionVO;
-import com.yi.psms.model.vo.question.PriceQuestionVO;
-import com.yi.psms.model.vo.question.QuestionContentVO;
 import com.yi.psms.util.Neo4jHelper;
 import com.yi.psms.util.ObjectHelper;
 import lombok.NonNull;
@@ -48,11 +44,9 @@ public class OpinionService extends BaseService {
 
         // 获取观点支持度问题结果整体分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
-        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
-        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistribution, questionId, attitudeQuestion);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistribution, questionId);
         if (attitudeDistFuture != null) {
             completableFutureList.add(attitudeDistFuture);
         }
@@ -73,11 +67,9 @@ public class OpinionService extends BaseService {
 
         // 获取时长问题结果整体分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
-        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        PriceQuestionVO priceQuestion = questionContent.getPriceQuestion();
-        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistribution, questionId, priceQuestion);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistribution, questionId);
         if (priceOptionDistFuture != null) {
             completableFutureList.add(priceOptionDistFuture);
         }
@@ -98,11 +90,9 @@ public class OpinionService extends BaseService {
 
         // 获取时长问题结果整体分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
-        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        LengthQuestionVO lengthQuestion = questionContent.getLengthQuestion();
-        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistribution, questionId, lengthQuestion);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistribution, questionId);
         if (lengthOptionDistFuture != null) {
             completableFutureList.add(lengthOptionDistFuture);
         }
@@ -136,23 +126,19 @@ public class OpinionService extends BaseService {
 
         // 获取结果整体分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
-        QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        AttitudeQuestionVO attitudeQuestion = questionContent.getAttitudeQuestion();
-        PriceQuestionVO priceQuestionVO = questionContent.getPriceQuestion();
-        LengthQuestionVO lengthQuestionVO = questionContent.getLengthQuestion();
-        List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistribution, questionId, attitudeQuestion);
+        var attitudeDistFuture = attachAttitudeOverallDistribution(opinionDistribution, questionId);
         if (attitudeDistFuture != null) {
             completableFutureList.add(attitudeDistFuture);
         }
 
-        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistribution, questionId, priceQuestionVO);
+        var priceOptionDistFuture = attachPriceOptionOverallDistribution(opinionDistribution, questionId);
         if (priceOptionDistFuture != null) {
             completableFutureList.add(priceOptionDistFuture);
         }
 
-        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistribution, questionId, lengthQuestionVO);
+        var lengthOptionDistFuture = attachLengthOptionOverallDistribution(opinionDistribution, questionId);
         if (lengthOptionDistFuture != null) {
             completableFutureList.add(lengthOptionDistFuture);
         }
@@ -344,10 +330,7 @@ public class OpinionService extends BaseService {
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
 
-        if (opinionDistribution.getAttitudeIntimateDist().size() == 0 ||
-                opinionDistribution.getPriceOptionIntimateDist().size() == 0 ||
-                opinionDistribution.getLengthOptionIntimateDist().size() == 0 ||
-                opinionDistribution.getViewIntimateDist() == null) {
+        if (opinionDistribution.getAttitudeIntimateDist().size() == 0 || opinionDistribution.getPriceOptionIntimateDist().size() == 0 || opinionDistribution.getLengthOptionIntimateDist().size() == 0 || opinionDistribution.getViewIntimateDist() == null) {
             log.warn("student {} lacks the intimates opinion distribution of question {}", studentId, questionId);
             return response("由于您或与您亲密度较高的同学/舍友/班级同学未填写前置问卷，此项暂无数据", opinionDistribution);
         }
@@ -355,88 +338,42 @@ public class OpinionService extends BaseService {
         return response(opinionDistribution);
     }
 
-    public CompletableFuture<Void> attachAttitudeOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId, AttitudeQuestionVO attitudeQuestion) {
-        if (attitudeQuestion == null) {
-            return null;
-        }
+    public CompletableFuture<List<MapValue>> attachAttitudeOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId) {
+        return questionNodeRepository.countOpinionByAttitude(questionId).whenComplete((v, throwable) -> {
+            List<OpinionCountVO> opinionCountList = new ArrayList<>();
 
-        val nbq = attitudeQuestion.getNumberBoundaryQuestion();
-        if (nbq == null) {
-            return null;
-        }
+            for (val mapValue : v) {
+                opinionCountList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), OpinionCountVO.class));
+            }
 
-        List<OpinionCountVO> result = new ArrayList<>();
-        List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
-
-        for (var i = nbq.getMin(); i <= nbq.getMax(); i++) {
-            val finalI = i;
-            completableFutureList.add(questionNodeRepository.countByQuestionIdAndAttitude(questionId, i).whenComplete((count, throwable) -> {
-                if (count > 0) {
-                    var o = new OpinionCountVO(finalI.toString(), count);
-                    result.add(o);
-                }
-            }));
-        }
-
-        return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName)).collect(Collectors.toList());
-            opinionDistribution.setAttitudeOverallDist(sortedResult);
+            opinionCountList = opinionCountList.stream().filter(o -> o.getName() != null && o.getCount() != null).sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName, Comparator.reverseOrder())).collect(Collectors.toList());
+            opinionDistribution.setAttitudeOverallDist(opinionCountList);
         });
     }
 
-    public CompletableFuture<Void> attachPriceOptionOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId, PriceQuestionVO priceQuestion) {
-        if (priceQuestion == null) {
-            return null;
-        }
+    public CompletableFuture<List<MapValue>> attachPriceOptionOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId) {
+        return questionNodeRepository.countOpinionByPriceOption(questionId).whenComplete((v, throwable) -> {
+            List<OpinionCountVO> opinionCountList = new ArrayList<>();
 
-        val oq = priceQuestion.getOptionQuestion();
-        if (oq == null) {
-            return null;
-        }
+            for (val mapValue : v) {
+                opinionCountList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), OpinionCountVO.class));
+            }
 
-        List<OpinionCountVO> result = new ArrayList<>();
-        List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
-
-        for (val option : oq.getOption()) {
-            completableFutureList.add(questionNodeRepository.countByQuestionIdAndPriceOption(questionId, Neo4jHelper.buildPriceOptionString(option.getOptionKey(), option.getOptionValue())).whenComplete((count, throwable) -> {
-                if (count > 0) {
-                    var o = new OpinionCountVO(option.getOptionValue(), count);
-                    result.add(o);
-                }
-            }));
-        }
-
-        return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName)).collect(Collectors.toList());
-            opinionDistribution.setPriceOptionOverallDist(sortedResult);
+            opinionCountList = opinionCountList.stream().filter(o -> o.getName() != null && o.getCount() != null).sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName, Comparator.reverseOrder())).collect(Collectors.toList());
+            opinionDistribution.setPriceOptionOverallDist(opinionCountList);
         });
     }
 
-    public CompletableFuture<Void> attachLengthOptionOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId, LengthQuestionVO lengthQuestion) {
-        if (lengthQuestion == null) {
-            return null;
-        }
+    public CompletableFuture<List<MapValue>> attachLengthOptionOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId) {
+        return questionNodeRepository.countOpinionByLengthOption(questionId).whenComplete((v, throwable) -> {
+            List<OpinionCountVO> opinionCountList = new ArrayList<>();
 
-        val oq = lengthQuestion.getOptionQuestion();
-        if (oq == null) {
-            return null;
-        }
+            for (val mapValue : v) {
+                opinionCountList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), OpinionCountVO.class));
+            }
 
-        List<OpinionCountVO> result = new ArrayList<>();
-        List<CompletableFuture<Integer>> completableFutureList = new ArrayList<>();
-
-        for (val option : oq.getOption()) {
-            completableFutureList.add(questionNodeRepository.countByQuestionIdAndLengthOption(questionId, Neo4jHelper.buildLengthOptionString(option.getOptionKey(), option.getOptionValue())).whenComplete((count, throwable) -> {
-                if (count > 0) {
-                    var o = new OpinionCountVO(option.getOptionValue(), count);
-                    result.add(o);
-                }
-            }));
-        }
-
-        return CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()])).whenComplete((v, throwable) -> {
-            var sortedResult = result.stream().sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName)).collect(Collectors.toList());
-            opinionDistribution.setLengthOptionOverallDist(sortedResult);
+            opinionCountList = opinionCountList.stream().filter(o -> o.getName() != null && o.getCount() != null).sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName, Comparator.reverseOrder())).collect(Collectors.toList());
+            opinionDistribution.setLengthOptionOverallDist(opinionCountList);
         });
     }
 
