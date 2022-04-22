@@ -1,5 +1,7 @@
 package com.yi.psms.service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
@@ -120,9 +122,19 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // TODO 获取看法结果整体分布
+        // 获取看法问题结果整体分布
+        OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
+        List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
-        return response();
+        var viewDistFuture = attachViewOverallDistribution(opinionDistribution, questionId);
+        if (viewDistFuture != null) {
+            completableFutureList.add(viewDistFuture);
+        }
+
+        var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
+        allFuture.join();
+
+        return response(opinionDistribution);
     }
 
     public ResponseVO getAllOverallDistribution(Integer questionId) {
@@ -152,7 +164,10 @@ public class OpinionService extends BaseService {
             completableFutureList.add(lengthOptionDistFuture);
         }
 
-        // TODO 获取看法结果整体分布
+        var viewDistFuture = attachViewOverallDistribution(opinionDistribution, questionId);
+        if (viewDistFuture != null) {
+            completableFutureList.add(viewDistFuture);
+        }
 
         var allFuture = CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
         allFuture.join();
@@ -173,8 +188,6 @@ public class OpinionService extends BaseService {
             log.warn("nonexistent question, questionId: {}", questionId);
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
-
-        // TODO 判断当前同学是否完成了第一轮填写
 
         // 获取观点支持度问题结果在亲密同学中的分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
@@ -386,10 +399,32 @@ public class OpinionService extends BaseService {
         });
     }
 
-    public CompletableFuture<Void> attachViewOverallDistribution() {
-        // TODO 获取看法结果整体分布
+    public CompletableFuture<List<MapValue>> attachViewOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId) {
+        var viewKeywordCountNode = viewKeywordCountNodeRepository.findFirstByQuestionIdOrderByUpdatedAtDesc(questionId);
+        if (viewKeywordCountNode == null) {
+            return CompletableFuture.completedFuture(null);
+        }
 
-        return null;
+        var gson = new Gson();
+        Map<String, Integer> counter = gson.fromJson(viewKeywordCountNode.getKeywordCount(), new TypeToken<HashMap<String, Integer>>() {
+        }.getType());
+        List<OpinionCountVO> keywordCount = new ArrayList<>();
+
+        counter.forEach((key, value) -> {
+            if (key != null) {
+                var o = new OpinionCountVO(key, value);
+                keywordCount.add(o);
+            }
+        });
+
+        var sortedKeywordCount = keywordCount.stream().sorted(Comparator.comparing(OpinionCountVO::getCount).thenComparing(OpinionCountVO::getName)).collect(Collectors.toList());
+
+        if (opinionDistribution.getViewOverallDist() == null) {
+            opinionDistribution.setViewOverallDist(new ViewDistributionVO());
+        }
+
+        opinionDistribution.getViewOverallDist().setKeywordCount(sortedKeywordCount);
+        return CompletableFuture.completedFuture(null);
     }
 
     public CompletableFuture<List<MapValue>> attachAttitudeIntimateDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer studentId, Integer questionId) {

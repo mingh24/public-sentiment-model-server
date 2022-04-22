@@ -8,6 +8,9 @@ import java.util.List;
 @Data
 public class ViewDistributionVO {
 
+    @JsonProperty("keywordCount")
+    private List<OpinionCountVO> keywordCount;
+
     @JsonProperty("viewList")
     private List<String> viewList;
 

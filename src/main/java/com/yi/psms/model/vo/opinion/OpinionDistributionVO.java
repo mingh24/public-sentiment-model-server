@@ -17,6 +17,9 @@ public class OpinionDistributionVO {
     @JsonProperty("lengthOptionOverallDist")
     private List<OpinionCountVO> lengthOptionOverallDist;
 
+    @JsonProperty("viewOverallDist")
+    private ViewDistributionVO viewOverallDist;
+
     @JsonProperty("attitudeIntimateDist")
     private List<OpinionCountVO> attitudeIntimateDist;
 
@@ -28,6 +31,5 @@ public class OpinionDistributionVO {
 
     @JsonProperty("viewIntimateDist")
     private ViewDistributionVO viewIntimateDist;
-
 
 }
