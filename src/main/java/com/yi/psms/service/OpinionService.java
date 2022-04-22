@@ -3,20 +3,26 @@ package com.yi.psms.service;
 import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
+import com.yi.psms.dao.ViewKeywordCountNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
+import com.yi.psms.model.entity.node.ViewKeywordCountNode;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.opinion.IntimateOpinionItemVO;
 import com.yi.psms.model.vo.opinion.OpinionCountVO;
 import com.yi.psms.model.vo.opinion.OpinionDistributionVO;
 import com.yi.psms.model.vo.opinion.ViewDistributionVO;
+import com.yi.psms.util.HanLPHelper;
 import com.yi.psms.util.Neo4jHelper;
 import com.yi.psms.util.ObjectHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.neo4j.driver.internal.value.MapValue;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -29,9 +35,12 @@ public class OpinionService extends BaseService {
 
     private final QuestionNodeRepository questionNodeRepository;
 
-    public OpinionService(StudentNodeRepository studentNodeRepository, QuestionNodeRepository questionNodeRepository) {
+    private final ViewKeywordCountNodeRepository viewKeywordCountNodeRepository;
+
+    public OpinionService(StudentNodeRepository studentNodeRepository, QuestionNodeRepository questionNodeRepository, ViewKeywordCountNodeRepository viewKeywordCountNodeRepository) {
         this.studentNodeRepository = studentNodeRepository;
         this.questionNodeRepository = questionNodeRepository;
+        this.viewKeywordCountNodeRepository = viewKeywordCountNodeRepository;
     }
 
     public ResponseVO getAttitudeOverallDistribution(Integer questionId) {
@@ -507,6 +516,58 @@ public class OpinionService extends BaseService {
         var validOpinionCount = dedupedOpinionList.size();
         var needCount = Math.ceil(validOpinionCount * 0.2);
         return dedupedOpinionList.stream().limit((int) needCount).collect(Collectors.toList());
+    }
+
+    @Scheduled(cron = "0 0 1/2 * * *")
+    public void routineDumpOpinionViewKeywordCount() {
+        var sw = new StopWatch();
+
+        sw.start("dump opinion view keyword count for question 3");
+        dumpOpinionViewKeywordCount(3);
+        sw.stop();
+
+        log.info(sw.prettyPrint());
+    }
+
+    public void dumpOpinionViewKeywordCount(Integer questionId) {
+        var counter = countOpinionViewKeyword(questionId);
+        Map<String, Integer> finalCounter = new HashMap<>();
+
+        counter.forEach((key, value) -> {
+            finalCounter.put(key, value[0]);
+        });
+
+        var gson = new Gson();
+        var keywordCountString = gson.toJson(finalCounter);
+        var currentDateTime = LocalDateTime.now();
+        var viewKeywordCountNode = new ViewKeywordCountNode(questionId, keywordCountString, currentDateTime, currentDateTime);
+        viewKeywordCountNodeRepository.save(viewKeywordCountNode);
+    }
+
+    public Map<String, int[]> countOpinionViewKeyword(Integer questionId) {
+        List<String> viewList = new ArrayList<>();
+        var mapValueList = questionNodeRepository.getOpinionView(questionId);
+
+        for (val m : mapValueList) {
+            viewList.add(m.get("view").asString());
+        }
+
+        Map<String, int[]> keywordCounter = new HashMap<>();
+
+        for (val view : viewList) {
+            var keywordList = HanLPHelper.segmentStopWordRemoved(view);
+
+            for (val keyword : keywordList) {
+                int[] count = keywordCounter.get(keyword);
+                if (count == null) {
+                    keywordCounter.put(keyword, new int[]{1});
+                } else {
+                    count[0]++;
+                }
+            }
+        }
+
+        return keywordCounter;
     }
 
 }

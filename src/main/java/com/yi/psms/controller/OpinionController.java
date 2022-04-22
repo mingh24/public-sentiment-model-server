@@ -3,10 +3,7 @@ package com.yi.psms.controller;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.service.OpinionService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -77,6 +74,13 @@ public class OpinionController extends BaseController {
     public ResponseVO getAllIntimateDistribution(@PathVariable Integer studentId, @PathVariable Integer questionId) {
         log.info("----- requested url: /opinions/all/intimate-distribution/{}/{} -----", studentId, questionId);
         return opinionService.getAllIntimateDistribution(studentId, questionId);
+    }
+
+    @PostMapping("/dump-opinion-view-keyword-count/{questionId}")
+    public ResponseVO dumpOpinionViewKeywordCount(@PathVariable Integer questionId) {
+        log.info("----- requested url: /opinions/dump-opinion-view-keyword-count/{} -----", questionId);
+        opinionService.dumpOpinionViewKeywordCount(questionId);
+        return response();
     }
 
 }

@@ -43,6 +43,12 @@ class QuestionNodeRepositoryTest {
     }
 
     @Test
+    void getOpinionView() {
+        var l = questionNodeRepository.getOpinionView(3);
+        System.out.println(l);
+    }
+
+    @Test
     void getIntimateOpinionByStudentIdAndQuestionId() throws ExecutionException, InterruptedException {
         var f = questionNodeRepository.getIntimateOpinionByStudentIdAndQuestionId(20210000, 1);
         System.out.println(f.get());
