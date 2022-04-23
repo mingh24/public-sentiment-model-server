@@ -381,7 +381,12 @@ public class OpinionService extends BaseService {
                 opinionCountList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), OpinionCountVO.class));
             }
 
-            opinionCountList = opinionCountList.stream().filter(o -> o.getName() != null && o.getCount() != null).sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName, Comparator.reverseOrder())).collect(Collectors.toList());
+            opinionCountList = opinionCountList.stream()
+                    .filter(o -> o.getName() != null && o.getCount() != null)
+                    .sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder())
+                            .thenComparing(OpinionCountVO::getName, Comparator.reverseOrder()))
+                    .collect(Collectors.toList());
+            opinionCountList.forEach(o -> o.setName(Neo4jHelper.parsePriceOptionString(o.getName())[1]));
             opinionDistribution.setPriceOptionOverallDist(opinionCountList);
         });
     }
@@ -394,7 +399,12 @@ public class OpinionService extends BaseService {
                 opinionCountList.add(ObjectHelper.buildObjectFromMap(mapValue.asMap(), OpinionCountVO.class));
             }
 
-            opinionCountList = opinionCountList.stream().filter(o -> o.getName() != null && o.getCount() != null).sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder()).thenComparing(OpinionCountVO::getName, Comparator.reverseOrder())).collect(Collectors.toList());
+            opinionCountList = opinionCountList.stream()
+                    .filter(o -> o.getName() != null && o.getCount() != null)
+                    .sorted(Comparator.comparing(OpinionCountVO::getCount, Comparator.reverseOrder())
+                            .thenComparing(OpinionCountVO::getName, Comparator.reverseOrder()))
+                    .collect(Collectors.toList());
+            opinionCountList.forEach(o -> o.setName(Neo4jHelper.parseLengthOptionString(o.getName())[1]));
             opinionDistribution.setLengthOptionOverallDist(opinionCountList);
         });
     }
