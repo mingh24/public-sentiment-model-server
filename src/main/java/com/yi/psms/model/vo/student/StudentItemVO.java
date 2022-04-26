@@ -11,9 +11,6 @@ import java.util.List;
 @Data
 public class StudentItemVO {
 
-    @JsonProperty("id")
-    private Long id;
-
     @JsonProperty("studentId")
     private Integer studentId;
 
@@ -23,19 +20,14 @@ public class StudentItemVO {
     @JsonProperty("sclass")
     private String sclass;
 
-    @JsonProperty("dormitory")
-    private String dormitory;
-
-    public StudentItemVO(Long id, Integer studentId, String name, String sclass, String dormitory) {
-        this.id = id;
+    public StudentItemVO(Integer studentId, String name, String sclass) {
         this.studentId = studentId;
         this.name = name;
         this.sclass = sclass;
-        this.dormitory = dormitory;
     }
 
     public static StudentItemVO buildFromNode(StudentNode studentNode) {
-        return new StudentItemVO(studentNode.getId(), studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass(), studentNode.getDormitory());
+        return new StudentItemVO(studentNode.getStudentId(), studentNode.getName(), studentNode.getSclass());
     }
 
     public static List<StudentItemVO> buildListFromNodeList(List<StudentNode> studentNodeList) {

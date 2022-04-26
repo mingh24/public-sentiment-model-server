@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 import java.util.List;
 
@@ -25,7 +26,8 @@ public class SubmissionVO {
     private Integer roommateIntimacy;
 
     @JsonProperty("friendItemList")
-    @NotEmpty(message = "朋友关系列表不能为 null 或 空值", groups = {Essential.class})
+    @NotEmpty(message = "好友列表不能为 null 或 空值", groups = {Essential.class})
+    @Size(min = 1, max = 3, message = "好友个数必须在 1-3 之间")
     private List<@Valid FriendItemVO> friendItemList;
 
     @JsonProperty("opinionItem")

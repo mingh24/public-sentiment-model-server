@@ -51,7 +51,7 @@ class StudentNodeRepositoryTest {
 
     @Test
     void setFriendIntimacy() {
-        System.out.println(studentNodeRepository.setFriendIntimacy(20210000, "testFriend", 11, LocalDateTime.now()));
+        System.out.println(studentNodeRepository.setFriendIntimacy(20210000, 20210001, 11, LocalDateTime.now()));
     }
 
     @Test

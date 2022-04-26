@@ -4,13 +4,13 @@ import com.yi.psms.constant.ResponseStatus;
 import com.yi.psms.dao.QuestionNodeRepository;
 import com.yi.psms.dao.StudentNodeRepository;
 import com.yi.psms.model.entity.node.QuestionNode;
-import com.yi.psms.model.entity.node.StudentNode;
 import com.yi.psms.model.vo.question.*;
 import com.yi.psms.model.entity.question.OptionQuestion;
 import com.yi.psms.model.vo.ResponseVO;
 import com.yi.psms.model.vo.questionnaire.FriendItemVO;
 import com.yi.psms.model.vo.questionnaire.OpinionItemVO;
 import com.yi.psms.model.vo.questionnaire.SubmissionVO;
+import com.yi.psms.util.ListHelper;
 import com.yi.psms.util.Neo4jHelper;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,25 +72,32 @@ public class QuestionnaireService extends BaseService {
         // 校验好友亲密度问题
         FriendIntimacyQuestion friendIntimacyQuestion = questionContent.getFriendIntimacyQuestion();
         List<FriendItemVO> friendItemList = submission.getFriendItemList();
+        var duplicateFriendItemList = ListHelper.extractDuplicateElements(friendItemList, FriendItemVO::getStudentId);
+        if (duplicateFriendItemList.size() > 0) {
+            List<String> studentIdStringList = duplicateFriendItemList.stream()
+                    .map(f -> f.getStudentId().toString())
+                    .collect(Collectors.toList());
+            log.warn("student {} entered duplicate friends, duplicate friends: {}", studentId, String.join("、", studentIdStringList));
+            return failResponse(ResponseStatus.FAIL, String.format("好友重复：%s", String.join("、", studentIdStringList)));
+        }
+
         for (val friendItem : friendItemList) {
-            List<StudentNode> studentNodeList = studentNodeRepository.findByName(friendItem.getName());
-            if (studentNodeList.size() <= 0) {
-                log.warn("student {} entered nonexistent friend, name: {}", studentId, friendItem.getName());
-                return failResponse(ResponseStatus.FAIL, String.format("无对应学生信息：%s", friendItem.getName()));
-            }
-
-            // TODO 确认一下，填写同名同学为好友是否有问题
             // 好友不能填自己
-            for (val studentNode : studentNodeList) {
-                if (studentNode.getStudentId().equals(studentId)) {
-                    log.warn("student {} entered itself as a friend", studentId);
-                    return failResponse(ResponseStatus.FAIL, "亲密好友不能填自己");
-                }
+            if (friendItem.getStudentId().equals(studentId)) {
+                log.warn("student {} entered itself as a friend", studentId);
+                return failResponse(ResponseStatus.FAIL, "好友不能为自己");
             }
 
+            // 好友必须存在
+            if (studentNodeRepository.findByStudentId(friendItem.getStudentId()) == null) {
+                log.warn("student {} entered nonexistent friend, studentId: {}", studentId, friendItem.getStudentId());
+                return failResponse(ResponseStatus.FAIL, String.format("无好友的学生信息：%d", friendItem.getStudentId()));
+            }
+
+            // 校验好友亲密度
             if (friendItem.getIntimacy() < friendIntimacyQuestion.getNumberBoundaryQuestion().getMin() || friendItem.getIntimacy() > friendIntimacyQuestion.getNumberBoundaryQuestion().getMax()) {
                 log.warn("student {} set invalid friend intimacy, questionId: {}, intimacy: {}", studentId, questionId, friendItem.getIntimacy());
-                return failResponse(ResponseStatus.FAIL, String.format("好友亲密度问题亲密度有误：%s", friendItem.getIntimacy()));
+                return failResponse(ResponseStatus.FAIL, String.format("好友亲密度有误：%s", friendItem.getIntimacy()));
             }
         }
 
@@ -133,8 +141,8 @@ public class QuestionnaireService extends BaseService {
         // 设置好友亲密度
         Integer createdFriendCount = 0;
         for (val friendItem : friendItemList) {
-            createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getName(), friendItem.getIntimacy(), currentDateTime);
-            log.info("student {} created friend relationship count {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getName(), friendItem.getIntimacy());
+            createdFriendCount += studentNodeRepository.setFriendIntimacy(studentId, friendItem.getStudentId(), friendItem.getIntimacy(), currentDateTime);
+            log.info("student {} created friend relationship number {} with student {}, intimacy: {}", studentId, createdFriendCount, friendItem.getStudentId(), friendItem.getIntimacy());
         }
 
         // 删除已存在的意见
