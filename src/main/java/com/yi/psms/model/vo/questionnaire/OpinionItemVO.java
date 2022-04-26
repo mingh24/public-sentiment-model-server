@@ -2,7 +2,6 @@ package com.yi.psms.model.vo.questionnaire;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 

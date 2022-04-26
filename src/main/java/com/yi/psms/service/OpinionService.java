@@ -76,7 +76,7 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 获取时长问题结果整体分布
+        // 获取价格问题结果整体分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
         List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
@@ -223,7 +223,7 @@ public class OpinionService extends BaseService {
             return failResponse(ResponseStatus.FAIL, String.format("无对应问题信息：%s", questionId));
         }
 
-        // 获取时长问题结果在亲密同学中的分布
+        // 获取价格问题结果在亲密同学中的分布
         OpinionDistributionVO opinionDistribution = new OpinionDistributionVO();
         List<CompletableFuture<List<MapValue>>> completableFutureList = new ArrayList<>();
 
@@ -578,9 +578,7 @@ public class OpinionService extends BaseService {
         var counter = countOpinionViewKeyword(questionId);
         Map<String, Integer> finalCounter = new HashMap<>();
 
-        counter.forEach((key, value) -> {
-            finalCounter.put(key, value[0]);
-        });
+        counter.forEach((key, value) -> finalCounter.put(key, value[0]));
 
         var gson = new Gson();
         var keywordCountString = gson.toJson(finalCounter);
