@@ -61,7 +61,7 @@ class StudentNodeRepositoryTest {
 
     @Test
     void setOpinion() {
-        System.out.println(studentNodeRepository.setOpinion(20210000, 1, 5, null, null, null, LocalDateTime.now()));
+        System.out.println(studentNodeRepository.setOpinion(20210000, 1, 5, null, null, null, null, null, LocalDateTime.now()));
     }
 
 }

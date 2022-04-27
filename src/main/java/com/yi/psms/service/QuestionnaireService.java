@@ -152,8 +152,8 @@ public class QuestionnaireService extends BaseService {
         // 设置意见
         String priceOption = buildPriceOption(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
         String lengthOption = buildLengthOption(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
-        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), opinionItem.getHasRequestedOverallDist(), opinionItem.getHasRequestedIntimateDist(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}, hasRequestedOverallDist: {}, hasRequestedIntimateDist: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), opinionItem.getHasRequestedOverallDist(), opinionItem.getHasRequestedIntimateDist());
 
         return response();
     }
@@ -211,8 +211,8 @@ public class QuestionnaireService extends BaseService {
         // 设置意见
         String priceOption = buildPriceOption(priceQuestion.getOptionQuestion().getOption(), opinionItem.getPriceOptionKey());
         String lengthOption = buildLengthOption(lengthQuestion.getOptionQuestion().getOption(), opinionItem.getLengthOptionKey());
-        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), currentDateTime);
-        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView());
+        Integer createdOpinionCount = studentNodeRepository.setOpinion(studentId, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), opinionItem.getHasRequestedOverallDist(), opinionItem.getHasRequestedIntimateDist(), currentDateTime);
+        log.info("student {} created opinion relationship count {} with question {}, attitude: {}, price option: {}, length option: {}, view: {}, hasRequestedOverallDist: {}, hasRequestedIntimateDist: {}", studentId, createdOpinionCount, questionId, opinionItem.getAttitude(), priceOption, lengthOption, opinionItem.getView(), opinionItem.getHasRequestedOverallDist(), opinionItem.getHasRequestedIntimateDist());
 
         return response();
     }

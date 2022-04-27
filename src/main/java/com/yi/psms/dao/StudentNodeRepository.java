@@ -46,8 +46,8 @@ public interface StudentNodeRepository extends Neo4jRepository<StudentNode, Long
 
     @Query("MATCH (s:Student) WHERE s.studentId = $studentId\n" +
             "MATCH (q:Question) WHERE q.questionId = $questionId\n" +
-            "CREATE (s)-[r:OPINION {attitude: $attitude, priceOption: $priceOption, lengthOption: $lengthOption, view: $view, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q)\n" +
+            "CREATE (s)-[r:OPINION {attitude: $attitude, priceOption: $priceOption, lengthOption: $lengthOption, view: $view, hasRequestedOverallDist: $hasRequestedOverallDist, hasRequestedIntimateDist: $hasRequestedIntimateDist, createdAt: $currentDateTime, updatedAt: $currentDateTime}]->(q)\n" +
             "RETURN count(r)")
-    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("priceOption") String priceOption, @Param("lengthOption") String lengthOption, @Param("view") String view, @Param("currentDateTime") LocalDateTime currentDateTime);
+    Integer setOpinion(@Param("studentId") Integer studentId, @Param("questionId") Integer questionId, @Param("attitude") Integer attitude, @Param("priceOption") String priceOption, @Param("lengthOption") String lengthOption, @Param("view") String view, @Param("hasRequestedOverallDist") Boolean hasRequestedOverallDist, @Param("hasRequestedIntimateDist") Boolean hasRequestedIntimateDist, @Param("currentDateTime") LocalDateTime currentDateTime);
 
 }

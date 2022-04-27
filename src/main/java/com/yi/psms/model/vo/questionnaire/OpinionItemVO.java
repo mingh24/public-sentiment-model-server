@@ -25,4 +25,10 @@ public class OpinionItemVO {
     @JsonProperty("view")
     private String view;
 
+    @JsonProperty("hasRequestedOverallDist")
+    private Boolean hasRequestedOverallDist;
+
+    @JsonProperty("hasRequestedIntimateDist")
+    private Boolean hasRequestedIntimateDist;
+
 }
