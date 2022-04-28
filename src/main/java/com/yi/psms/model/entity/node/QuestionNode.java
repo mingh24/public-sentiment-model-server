@@ -20,15 +20,19 @@ public class QuestionNode {
     @Property("previousQuestionId")
     private Integer previousQuestionId;
 
+    @Property("statement")
+    private String statement;
+
     @Property("content")
     private String content;
 
     @Property("phase")
     private Integer phase;
 
-    public QuestionNode(Integer questionId, Integer previousQuestionId, String content, Integer phase) {
+    public QuestionNode(Integer questionId, Integer previousQuestionId, String statement, String content, Integer phase) {
         this.questionId = questionId;
         this.previousQuestionId = previousQuestionId;
+        this.statement = statement;
         this.content = content;
         this.phase = phase;
     }
