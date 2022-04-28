@@ -20,9 +20,6 @@ public class QuestionVO {
     @JsonProperty("previousQuestionId")
     private Integer previousQuestionId;
 
-    @JsonProperty("statementId")
-    private Integer statementId;
-
     @JsonProperty("content")
     private String content;
 
@@ -32,11 +29,10 @@ public class QuestionVO {
     @JsonProperty("questionContent")
     private QuestionContentVO questionContent;
 
-    public QuestionVO(Long id, Integer questionId, Integer previousQuestionId, Integer statementId, String content, Integer phase, QuestionContentVO questionContent) {
+    public QuestionVO(Long id, Integer questionId, Integer previousQuestionId, String content, Integer phase, QuestionContentVO questionContent) {
         this.id = id;
         this.questionId = questionId;
         this.previousQuestionId = previousQuestionId;
-        this.statementId = statementId;
         this.content = content;
         this.phase = phase;
         this.questionContent = questionContent;
@@ -48,7 +44,7 @@ public class QuestionVO {
         }
 
         QuestionContentVO questionContent = QuestionContentVO.buildFromContentString(questionNode.getContent());
-        return new QuestionVO(questionNode.getId(), questionNode.getQuestionId(), questionNode.getPreviousQuestionId(), questionNode.getStatementId(), questionNode.getContent(), questionNode.getPhase(), questionContent);
+        return new QuestionVO(questionNode.getId(), questionNode.getQuestionId(), questionNode.getPreviousQuestionId(), questionNode.getContent(), questionNode.getPhase(), questionContent);
     }
 
     public static List<QuestionVO> buildListFromNode(List<QuestionNode> questionNodeList) {
