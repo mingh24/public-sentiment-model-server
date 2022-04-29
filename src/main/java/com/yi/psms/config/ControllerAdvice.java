@@ -84,7 +84,6 @@ public class ControllerAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        log.info("----- afterBodyRead -----");
         log.info("class name: {}, method name: {}", parameter.getDeclaringClass().getSimpleName(), parameter.getMethod().getName());
         log.info("request parameter: {}", body.toString());
         return body;
@@ -92,7 +91,7 @@ public class ControllerAdvice implements RequestBodyAdvice {
 
     @Override
     public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        log.info("----- handleEmptyBody -----");
+        log.info("empty body handled");
         return body;
     }
 }
