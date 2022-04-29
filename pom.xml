@@ -59,6 +59,7 @@
     </dependencies>
 
     <build>
+        <finalName>public-sentiment-model-server</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
