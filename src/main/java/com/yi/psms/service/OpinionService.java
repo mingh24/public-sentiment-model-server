@@ -412,6 +412,11 @@ public class OpinionService extends BaseService {
     public CompletableFuture<List<MapValue>> attachViewOverallDistribution(@NonNull OpinionDistributionVO opinionDistribution, Integer questionId) {
         var viewKeywordCountNode = viewKeywordCountNodeRepository.findFirstByQuestionIdOrderByUpdatedAtDesc(questionId);
         if (viewKeywordCountNode == null) {
+            if (opinionDistribution.getViewOverallDist() == null) {
+                opinionDistribution.setViewOverallDist(new ViewDistributionVO());
+            }
+
+            opinionDistribution.getViewOverallDist().setKeywordCount(new ArrayList<>());
             return CompletableFuture.completedFuture(null);
         }
 
